@@ -48,6 +48,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	private DefaultTableModel modelo;
 	private JButton btnEliminar;
 	private JButton btnAñadirVariable;
+	private JLabel lblcant;
 	
 	//PERSONALIZADO
 	private String tablaVar;
@@ -56,6 +57,9 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	
 	//VARRAY
 	private ArrayList<variable> listaVariables = new ArrayList<variable>();
+	private JLabel lblNombreEstructura;
+	private JTextField nombreVarray;
+	private String nombreEst;
 	
 	/**
 	 * Launch the application.
@@ -101,7 +105,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		lbltipo.setBounds(10, 40, 39, 20);
 		contentPane.add(lbltipo);
 		
-		JLabel lblcant = new JLabel("Cantidad:");
+		lblcant = new JLabel("Cantidad:");
 		lblcant.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		lblcant.setBounds(10, 70, 61, 20);
 		contentPane.add(lblcant);
@@ -183,6 +187,18 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		
 		
 		//PANEL DE VARRAY -- INICIO
+		lblNombreEstructura = new JLabel("Nombre Varray:");
+		lblNombreEstructura.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		lblNombreEstructura.setBounds(10, 70, 110, 20);
+		contentPane.add(lblNombreEstructura);
+		lblNombreEstructura.setVisible(false);
+		
+		nombreVarray = new JTextField();
+		nombreVarray.setColumns(10);
+		nombreVarray.setBounds(121, 70, 124, 20);
+		contentPane.add(nombreVarray);
+		nombreVarray.setVisible(false);
+		
 		JPanel panelVarray = new JPanel();
 		panelVarray.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panelVarray.setBounds(10, 95, 235, 125);
@@ -253,17 +269,24 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 				}
 				
 				if(tipo.getSelectedItem()== "VARRAY") {
+					lblcant.setVisible(false);
+					lblNombreEstructura.setVisible(true);
+					nombreVarray.setVisible(true);
 					panelPersonalizado.setVisible(false);
 					panelVarray.setVisible(true);
 					cantidad.setVisible(false);
 					cantidad.setText(null);
 				} else {
+					lblcant.setVisible(true);
+					lblNombreEstructura.setVisible(false);
 					panelPersonalizado.setVisible(true);
 					panelVarray.setVisible(false);
+					nombreVarray.setVisible(false);
 				}
 			}
 		});
 		contentPane.add(tipo);
+		
 	}
 
 	@Override
@@ -282,7 +305,8 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			{
 				System.out.println("Las fechas no tienen cantidad.");
 			}
-			else if(tipo.getSelectedItem()== "VARRAY" && listaVariables.size()<1) {
+			else if(tipo.getSelectedItem()== "VARRAY" && listaVariables.size()<1) 
+			{
 				System.out.println("Al ser varray, necesita variables en la lista.");
 			}
 			else if(tipo.getSelectedItem()== "Personalizado" && (tabla.getText().isEmpty() || columna.getText().isEmpty() || tipo_pers.getSelectedItem() =="Seleccionar"))
@@ -292,6 +316,10 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			else if(tipo.getSelectedItem()== "Personalizado" && tipo_pers.getSelectedItem() =="VARCHAR2" && cantidad.getText().isEmpty())
 			{
 				System.out.println("Los datos varchar necesitan cantidad.");
+			}
+			else if(tipo.getSelectedItem()== "VARRAY" && nombreVarray.getText().isEmpty()) 
+			{
+				System.out.println("La estructura varray debe tener un nombre, para poder reutilizar estructura.");
 			}
 			else
 			{
@@ -307,6 +335,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 				
 				try{
 					if(tipoVar == "VARRAY") {
+						nombreEst = nombreVarray.getText();
 						cantidadVar = listaVariables.size();
 						System.out.println("La lista tiene " + cantidadVar + " variables." );
 					}
@@ -319,6 +348,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 					
 					System.out.println("FIN. Nombre:" + nombreVar + ", Cantidad:" + cantidadVar +", Tipo:" + tipoVar );
 					System.out.println("FIN pers. Tabla:" + tablaVar + ", Columna:" + columnaVar + ", Tipo:" + tipoPersVar);
+					System.out.println("FIN var. Nombre Estructura:" + nombreEst);
 					dispose();
 				} catch (NumberFormatException exception) {
 					System.out.println("La cantidad no es un numero.");
@@ -392,7 +422,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 								tablaVar,columnaVar,tipoPersVar);
 		} else if(tipoVar == "VARRAY") {
 			System.out.println("ARRAY");
-			return new variable(nombreVar,tipoVar,listaVariables);
+			return new variable(nombreVar,tipoVar,listaVariables,nombreEst);
 		} else {
 			System.out.println("EXTRA");
 			return new variable(nombreVar,tipoVar,cantidadVar);

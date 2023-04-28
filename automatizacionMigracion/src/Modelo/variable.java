@@ -13,6 +13,7 @@ public class variable {
 	private String tipo_pers;
 	
 	private ArrayList<variable> listaVariables;
+	private String nombre_varray;
 	
 	public variable(String pNombre, String pTipo, int pCantidad) {
 		nombreVariable = pNombre;
@@ -33,10 +34,11 @@ public class variable {
 	}
 	
 	//OPCION VARIABLE VARRAY
-	public variable(String pNombre, String pTipo, ArrayList<variable> pListaVariables) {
+	public variable(String pNombre, String pTipo, ArrayList<variable> pListaVariables,String pNombreEst) {
 		nombreVariable = pNombre;
 		tipo = pTipo;
 		
+		nombre_varray = pNombreEst;
 		listaVariables=pListaVariables;
 	}
 
@@ -67,6 +69,10 @@ public class variable {
 	}
 	
 	//--VARRAY--
+	public String getNombreEstructura() {
+		return nombre_varray;
+	}
+	
 	public int getCantVariables() {
 		return listaVariables.size();
 	}
