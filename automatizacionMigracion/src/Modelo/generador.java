@@ -56,6 +56,55 @@ public class generador {
         {
         	estructura estructura = infoEstructura.getEstructura(i);
         	
+        	for (int j=0; j<estructura.getCantVariables(); j++)
+            {
+        		variable variable= estructura.getVariable(j);
+        		
+        		if (variable.getTipo()== "VARRAY") {
+        			
+        			bw_spc.write("  -- Array para estructura " + estructura.getNombre() + ", " + variable.getNombreEstructura());
+		            bw_spc.newLine();
+		            bw_spc.write("  TYPE " + variable.getNombreEstructura() + " IS RECORD");
+		            bw_spc.newLine();
+		            bw_spc.write("  {");
+		            bw_spc.newLine();
+        			
+        			for (int k=0; k<variable.getCantVariables(); k++)
+        			{
+	        			variable variableVarray = variable.getVariable(k);
+
+	                	String linea ="";
+	                	if (variableVarray.getTipo() == "VARCHAR2" ||  variableVarray.getTipo() == "NUMBER" || variableVarray.getTipo() == "DATE") {
+	                		linea = variableVarray.getNombre() + " " + variableVarray.getTipo();
+	    	            	if (variableVarray.getCantidad() != -1)
+	    	            	{
+	    	            		linea = linea + "(" + variableVarray.getCantidad() + ")";
+	    	            	}
+	                	} else if (variableVarray.getTipo() == "Personalizado") {
+	                		linea = variableVarray.getNombre() + " " + variableVarray.getTabla() + "." + variableVarray.getColumna() + "%TYPE";
+	                	}
+	                	
+	                	if (k < variable.getCantVariables()- 1) 
+	                	{
+	                		linea = linea + ",";
+	                	}
+	                	
+	                	bw_spc.write("       " + linea);
+	                    bw_spc.newLine();  
+	                     
+        			}
+        			
+        			bw_spc.write("  };");
+	                bw_spc.newLine();
+	                bw_spc.newLine();//ESPACIO VACIO
+	                
+	                bw_spc.write("  TYPE VR_" + variable.getNombreEstructura() + " IS VARRAY(10) OF " + variable.getNombreEstructura() + ";");
+	                bw_spc.newLine();
+	                bw_spc.newLine();//ESPACIO VACIO
+                }
+                
+            }
+        	
         	bw_spc.write("  -- Tipo de datos para pantalla " + estructura.getNombre());
             bw_spc.newLine();
             bw_spc.write("  TYPE PAN_" + estructura.getNombre() + " IS RECORD");
@@ -77,7 +126,7 @@ public class generador {
             	} else if (variable.getTipo() == "Personalizado") {
             		linea = variable.getNombre() + " " + variable.getTabla() + "." + variable.getColumna() + "%TYPE";
             	} else if (variable.getTipo() == "VARRAY") {
-            		linea = variable.getNombre() + " " + variable.getNombreEstructura();
+            		linea = variable.getNombre() + " VR_" + variable.getNombreEstructura();
             	}
             	
             	if (j < estructura.getCantVariables()- 1) 
@@ -182,6 +231,26 @@ public class generador {
         		
         		if(variable.getTipo() == "NUMBER" || (variable.getTipo() == "Personalizado" && variable.getTipoPers() == "NUMBER")) {
         			bw_bdy.write("  G_CAM" + nombreEstructura + "." + variable.getNombre() + " := -1;");
+        		} else if (variable.getTipo() == "VARRAY"){
+        			bw_bdy.write("  G_CAM" + nombreEstructura + "." + variable.getNombre() + " := VR_" + variable.getNombreEstructura() + "();");
+        			bw_bdy.newLine();
+        			bw_bdy.write("  G_CAM" + nombreEstructura + "." + variable.getNombre() + ".EXTEND(10);");
+        			bw_bdy.newLine();
+        			bw_bdy.write("  FOR i IN 1..10 LOOP");
+        			bw_bdy.newLine();
+        			
+        			for (int k=0; k<variable.getCantVariables(); k++)
+        			{
+	        			variable variableVarray = variable.getVariable(k);
+	        			if(variableVarray.getTipo() == "NUMBER" || (variableVarray.getTipo() == "Personalizado" && variableVarray.getTipoPers() == "NUMBER")) {
+	            			bw_bdy.write("    G_CAM" + nombreEstructura + "." + variable.getNombre() + "(I)." + variableVarray.getNombre() + " := -1;");
+	            		} else {
+	            			bw_bdy.write("    G_CAM" + nombreEstructura + "." + variable.getNombre() + "(I)." + variableVarray.getNombre() + " := null;");
+	            		}
+	        			bw_bdy.newLine();
+        			}
+        			
+        			bw_bdy.write("  END LOOP;");
         		} else {
         			bw_bdy.write("  G_CAM" + nombreEstructura + "." + variable.getNombre() + " := null;");
         		}
@@ -228,16 +297,70 @@ public class generador {
         	{
             	variable variable = estructura.getVariable(j);
         		
-            	bw_bdy.write("  if G_CAM"+ nombreEstructura+"." + variable.getNombre() +" is not null then \r\n"
-            			   + "    json_aux.put('"+ variable.getNombre() +"', G_CAM"+ nombreEstructura+"." + variable.getNombre() + "); \r\n"
-            			   + "  else \r\n");
-        		if(variable.getTipo() == "NUMBER" || (variable.getTipo() == "Personalizado" && variable.getTipoPers() == "NUMBER")) {
-        			bw_bdy.write("    json_aux.put('"+ variable.getNombre() +"', 0 );");
+            	if (variable.getTipo() != "VARRAY") {
+	            	bw_bdy.write("  if G_CAM"+ nombreEstructura+"." + variable.getNombre() +" is not null then \r\n"
+	            			   + "    json_aux.put('"+ variable.getNombre() +"', G_CAM"+ nombreEstructura+"." + variable.getNombre() + "); \r\n"
+	            			   + "  else \r\n");
+	        		if(variable.getTipo() == "NUMBER" || (variable.getTipo() == "Personalizado" && variable.getTipoPers() == "NUMBER")) {
+	        			bw_bdy.write("    json_aux.put('"+ variable.getNombre() +"', 0 );");
+	        		} else {
+	        			bw_bdy.write("    json_aux.put('"+ variable.getNombre() +"', '' );");
+	        		}
+	        		bw_bdy.newLine();
+	        		bw_bdy.write("  end if; \r\n");
         		} else {
-        			bw_bdy.write("    json_aux.put('"+ variable.getNombre() +"', '' );");
+        			bw_bdy.write("  IF G_CAM"+ nombreEstructura+"." + variable.getNombre() +" IS NOT NULL THEN \r\n"
+	            			   + "    ARR := pljson_list(); \r\n" 
+        					   + "    json_arr_aux := pljson('{}'); \r\n");
+        			bw_bdy.newLine(); //ESPACIO VACIO
+        			
+        			bw_bdy.write("    FOR ln_indice IN 1..G_CAM"+ nombreEstructura+"." + variable.getNombre() +".count LOOP \r\n"
+	            			   + "      P_ARTICULOS := G_CAM"+ nombreEstructura+"." + variable.getNombre() +"(ln_indice); \r\n");
+        			
+        			for (int k=0; k<variable.getCantVariables(); k++)
+        			{
+        				bw_bdy.newLine(); //ESPACIO VACIO
+        				
+        				variable variableVarray = variable.getVariable(k);
+        				
+	        			bw_bdy.write("      if P_ARTICULOS." + variableVarray.getNombre() +" is not null then \r\n"
+		            			   + "        json_arr_aux.put('"+ variableVarray.getNombre() +"', P_ARTICULOS." + variableVarray.getNombre() + "); \r\n"
+		            			   + "      else \r\n");
+		        		
+	        			if(variableVarray.getTipo() == "NUMBER" || (variableVarray.getTipo() == "Personalizado" && variableVarray.getTipoPers() == "NUMBER")) {
+		        			bw_bdy.write("        json_aux.put('"+ variableVarray.getNombre() +"', 0 );");
+		        		} else {
+		        			bw_bdy.write("        json_aux.put('"+ variableVarray.getNombre() +"', '' );");
+		        		}
+	        			bw_bdy.newLine();
+	        			bw_bdy.write("      end if; \r\n");
+        			}
+        			
+	        		bw_bdy.newLine(); //ESPACIO VACIO
+	        		bw_bdy.write("      ARR.APPEND(json_arr_aux.to_json_value); \r\n"
+	        				   + "    END LOOP; \r\n"
+	        				   + "  ELSE \r\n"
+	        				   + "    ARR := pljson_list(); \r\n"
+	        				   + "    json_arr_aux := pljson('{}'); \r\n");
+	        		
+	        		for (int k=0; k<variable.getCantVariables(); k++)
+        			{
+        				bw_bdy.newLine(); //ESPACIO VACIO
+        				
+        				variable variableVarray = variable.getVariable(k);
+        				
+        				if(variableVarray.getTipo() == "NUMBER" || (variableVarray.getTipo() == "Personalizado" && variableVarray.getTipoPers() == "NUMBER")) {
+    	        			bw_bdy.write("    json_arr_aux.put('"+ variableVarray.getNombre() +"', 0 );");
+    	        		} else {
+    	        			bw_bdy.write("    json_arr_aux.put('"+ variableVarray.getNombre() +"', '' );");
+    	        		}
+        			}
+	        		bw_bdy.newLine();
+	        		bw_bdy.newLine(); //ESPACIO VACIO
+	        		bw_bdy.write("    ARR.APPEND(json_arr_aux.to_json_value); \r\n"
+	        				   + "    json_aux.put('"+ variable.getNombre() +"',arr); \r\n"
+	        				   + "  END IF; \r\n");
         		}
-        		bw_bdy.newLine();
-        		bw_bdy.newLine(); //ESPACIO VACIO
         	}
             
             bw_bdy.write("  json.put('PAN_"+ nombreEstructura +"',json_aux); \r\n"
@@ -264,6 +387,29 @@ public class generador {
             		bw_bdy.write("  G_CAM"+ nombreEstructura +"." + variable.getNombre() +" := pljson_ext.get_string(json_aux, '" + variable.getNombre() +"');");
             	} else if(variable.getTipo() == "DATE" || (variable.getTipo() == "Personalizado" && variable.getTipoPers() == "DATE")) {
             		bw_bdy.write("  G_CAM"+ nombreEstructura +"." + variable.getNombre() +" := to_date(pljson_ext.get_string(json_aux, '" + variable.getNombre() +"'), 'DD/MM/YY HH24:MI:SS');");
+            	} else if(variable.getTipo() == "VARRAY") {
+            		bw_bdy.write("  arr := pljson_ext.get_pljson_list(json_aux,'"+ variable.getNombre() +"'); \r\n"
+	        				   + "  IF arr.COUNT > 0 THEN \r\n"
+	        				   + "    G_CAM"+ nombreEstructura +"." + variable.getNombre() +" := VR_"+ variable.getNombreEstructura() +"(); \r\n"
+	        				   + "    FOR i IN 1..ARR.COUNT LOOP \r\n"
+	        				   + "      datos := arr.get(i).to_char(false); \r\n"
+	        				   + "      json_arr_aux := pljson(datos); \r\n"
+	        				   + "      G_CAM" + nombreEstructura +"."+ variable.getNombre()+".EXTEND; \r\n");
+                	
+            		for (int k=0; k<variable.getCantVariables(); k++)
+        			{
+            			variable variableVarray = variable.getVariable(k);
+	            		if(variableVarray.getTipo() == "NUMBER" || (variableVarray.getTipo() == "Personalizado" && variableVarray.getTipoPers() == "NUMBER")) {
+	                		bw_bdy.write("      G_CAM"+ nombreEstructura +"." + variable.getNombre() +"(I)."+ variableVarray.getNombre() +" := pljson_ext.get_number(json_arr_aux, '" + variableVarray.getNombre() +"');");
+	                	} else if(variableVarray.getTipo() == "VARCHAR2" || (variableVarray.getTipo() == "Personalizado" && variableVarray.getTipoPers() == "VARCHAR2")) {
+	                		bw_bdy.write("      G_CAM"+ nombreEstructura +"." + variable.getNombre() +"(I)."+ variableVarray.getNombre() +" := pljson_ext.get_string(json_arr_aux, '" + variableVarray.getNombre() +"');");
+	                	} else if(variableVarray.getTipo() == "DATE" || (variableVarray.getTipo() == "Personalizado" && variableVarray.getTipoPers() == "DATE")) {
+	                		bw_bdy.write("      G_CAM"+ nombreEstructura +"." + variable.getNombre() +"(I)."+ variableVarray.getNombre() +" := to_date(pljson_ext.get_string(json_arr_aux, '" + variableVarray.getNombre() +"'), 'DD/MM/YY HH24:MI:SS');");
+	                	}
+	            		bw_bdy.newLine();
+        			}
+            		bw_bdy.write("    END LOOP; \r\n"
+            			       + "  END IF;");
             	}
             	bw_bdy.newLine();
         	}
@@ -305,13 +451,33 @@ public class generador {
             				   + "    ELSE \r\n"
             				   + "       V_MENSA := V_MENSA || '''' || to_char(G_CAM"+ nombreEstructura +"." + variable.getNombre() +",'DD-MM-RRRR HH24:MI:SS') ||''';' || CHR(13);\r\n"
             				   + "    END IF;");
+            	} else if(variable.getTipo() == "VARRAY") {
+            		bw_bdy.write("    V_MENSA := 'G_CAM"+ nombreEstructura +"." + variable.getNombre() +" := ' || CHR(13); \r\n"
+            				   + "    IF G_CAM"+ nombreEstructura +"." + variable.getNombre() + "IS NULL THEN \r\n"
+            				   + "        V_MENSA := V_MENSA ||'NULL'||';'||CHR(13); \r\n"
+            				   + "        DBMS_LOB.WRITEAPPEND(V_LOG,LENGTH(V_MENSA),V_MENSA); \r\n"
+            				   + "    ELSE \r\n"
+            				   + "        DBMS_LOB.WRITEAPPEND(V_LOG,LENGTH(V_MENSA),V_MENSA); \r\n"
+            				   + "        FOR I IN 1..G_CAM"+ nombreEstructura +"."+ variable.getNombre() +".COUNT LOOP \r\n"
+            				   + "          V_MENSA := 'I = '|| NVL(TO_CHAR(I),'NULL') || CHR(13); \r\n");
+            		
+            		for (int k=0; k<variable.getCantVariables(); k++)
+        			{
+            			variable variableVarray = variable.getVariable(k);
+            			bw_bdy.write("          V_MENSA := V_MENSA || '"+variableVarray.getNombre()+" '||I||'G_CAM"+ nombreEstructura +"."+ variable.getNombre() +"(I)."+variableVarray.getNombre() +"|| CHR(13);");
+            			bw_bdy.newLine();
+        			}
+            		
+            		bw_bdy.write("          DBMS_LOB.WRITEAPPEND(V_LOG,LENGTH(V_MENSA),V_MENSA); \r\n"
+         				   	   + "        END LOOP \r\n"
+         				   	   + "    END IF;");
             	}
             	bw_bdy.newLine();
             	
-            	if(j==0)
+            	if(j==0 && variable.getTipo() != "VARRAY")
             	{
             		bw_bdy.write("    V_LOG := V_MENSA;");
-            	} else {
+            	} else if(variable.getTipo() != "VARRAY"){
             		bw_bdy.write("    DBMS_LOB.WRITEAPPEND(V_LOG,LENGTH(V_MENSA),V_MENSA);");
             	}
             	bw_bdy.newLine();
