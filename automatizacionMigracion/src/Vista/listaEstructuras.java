@@ -32,11 +32,9 @@ public class listaEstructuras extends JFrame implements ActionListener{
 	private DefaultTableModel modelo;
 	private JTable table;
 	private JButton btnNuevaEstructura;
-	private JButton btnGenerar;
+	public JButton btnGenerar;
 	
 	private ArrayList<estructura> listaEstructuras;
-	private static String nomenclatura;
-	private int codigo;
 	/**
 	 * Launch the application.
 	 */
@@ -44,7 +42,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					listaEstructuras frame = new listaEstructuras(nomenclatura, -1);
+					listaEstructuras frame = new listaEstructuras();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -56,18 +54,14 @@ public class listaEstructuras extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public listaEstructuras(String nomenclatura, int codigo) {
+	public listaEstructuras() {
 		System.out.println("***Inicio inicializar listaEstructuras***");
-		this.nomenclatura = nomenclatura;
-		System.out.println(this.nomenclatura);
-		this.codigo = codigo;
 		listaEstructuras = new ArrayList<estructura>();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setName(nomenclatura);
 		
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -128,6 +122,9 @@ public class listaEstructuras extends JFrame implements ActionListener{
 
 			@Override
 			public void eliminar(int fila) {
+				if(tablaVariablesEstructura.isEditing()) {
+					tablaVariablesEstructura.getCellEditor().stopCellEditing();
+				}
 				System.out.println("Borrar fila: " + fila);
 				listaEstructuras.remove(fila);
 				modelo.removeRow(fila);
@@ -144,7 +141,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		btnGenerar = new JButton("Generar");
-		btnGenerar.addActionListener(this);
+		//btnGenerar.addActionListener(this);
 		panel.add(btnGenerar, BorderLayout.EAST);
 		
 		btnNuevaEstructura = new JButton("Nueva estructura");
@@ -187,23 +184,41 @@ public class listaEstructuras extends JFrame implements ActionListener{
 			//Cerramos la principal
 			getFrame().setVisible(false);
 		}
-		else if (e.getSource()== btnGenerar) 
-		{
-			System.out.println("EN PROCESO ...");
-			
-			if(listaEstructuras.size()==0) {
-				JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo");
-				System.out.println("ERROR: ListaEstructura vacia");
-			} else {
-				generador gen =new generador(new ficheros(nomenclatura, codigo, listaEstructuras));
-			}
-			
-		}
-		
 	}
 	
 	private JFrame getFrame(){
 	    return this;
 	}
-
+	
+	public boolean comprobarGenerar() {
+		if(listaEstructuras.size()==0) {
+			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo");
+			System.out.println("ERROR: ListaEstructura vacia");
+			return false;
+		} else {
+			return true;
+			//generador gen =new generador(new ficheros(nomenclatura, codigo, listaEstructuras));
+		}
+	}
+	
+	public ArrayList<estructura> getListaEst(){
+		return listaEstructuras;
+	}
+	
+	public ArrayList<String> getListaNomEst(String nomenclatura){
+		ArrayList<String> listanombreestado = new ArrayList<String>();
+		
+		for (int i=0; i<listaEstructuras.size(); i++)
+        {
+        	estructura estructura = listaEstructuras.get(i);
+        	
+        	listanombreestado.add("PACK_" + nomenclatura + ".PAN_" + estructura.getNombre());
+        }
+		
+		return listanombreestado;
+	}
+	
+	public int getListaTam(){
+		return listaEstructuras.size();
+	}
 }

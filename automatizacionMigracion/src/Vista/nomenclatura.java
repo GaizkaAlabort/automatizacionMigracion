@@ -13,15 +13,17 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import java.awt.Font;
 
-public class nomenclatura extends JFrame implements ActionListener{
+public class nomenclatura extends JFrame{
 
 	private JPanel contentPane;
 	private JTextField nomenclatura;
-	private JButton btnNewButton;
+	public JButton btnNewButton;
 	private JLabel lblInfo;
 	private JLabel lblInfo2;
 	private JLabel lblCodigo;
 	private JTextField codigo;
+	
+	private int cod;
 
 	/**
 	 * Launch the application.
@@ -58,7 +60,7 @@ public class nomenclatura extends JFrame implements ActionListener{
 		nomenclatura.setColumns(10);
 		
 		btnNewButton = new JButton("Empezar");
-		btnNewButton.addActionListener((ActionListener) this);
+		//btnNewButton.addActionListener((ActionListener) this);
 		
 		lblCodigo = new JLabel("Introduzca codigo de la solicitud:");
 		contentPane.add(lblCodigo);
@@ -77,34 +79,41 @@ public class nomenclatura extends JFrame implements ActionListener{
 		contentPane.add(lblInfo2);
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource()==btnNewButton) 
+	public boolean comprobarCampos() {
+		if (nomenclatura.getText().isEmpty())
 		{
-			if (nomenclatura.getText().isEmpty())
-			{
-				System.out.println("Falta nombrar al modulo.");
-				JOptionPane.showMessageDialog(null, "Introduzca nomenclatura");
-			}
-			else
-			{
-				int cod;
-				try{
-					if(codigo.getText().isEmpty()) {
-						cod = -1;
-					} else {
-						cod = Integer.parseInt(codigo.getText());
-					}
-					listaEstructuras lista1= new listaEstructuras(nomenclatura.getText(), cod);
-					//Hacemos visible la nueva pantalla
-					lista1.setVisible(true);
-					//Cerramos la principal
-					dispose();
-				} catch (NumberFormatException exception) {
-					System.out.println("El codigo no es un numero.");
-				}
-				
-			}
+			System.out.println("Falta nombrar al modulo.");
+			JOptionPane.showMessageDialog(null, "Introduzca nomenclatura");
+			return false;
 		}
+		else
+		{
+			try{
+				if(codigo.getText().isEmpty()) {
+					cod = -1;
+				} else {
+					cod = Integer.parseInt(codigo.getText());
+				}
+				//listaEstructuras lista1= new listaEstructuras(nomenclatura.getText(), cod);
+				//Hacemos visible la nueva pantalla
+				//lista1.setVisible(true);
+				
+				//Cerramos la principal
+				dispose();
+				return true;
+			} catch (NumberFormatException exception) {
+				System.out.println("El codigo no es un numero.");
+				return false;
+			}			
+		}
+	}
+	
+	public String getNomenclatura() {
+		return nomenclatura.getText();
+	}
+	
+	public int getCodPeticion() {
+		return cod;
 	}
 	
 }

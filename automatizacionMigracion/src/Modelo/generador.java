@@ -5,17 +5,54 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class generador {
 	
 	private ficheros infoEstructura;
 	
+	private String nomenclatura;
+	private int codigoPet;
+	private String modulo;
+	private String fecha;
+	private int cantEstructuras;
+	private int cantPantallas;
+	private int cantCodPantallas;
+	
 	public generador(ficheros pficheros) {
+		System.out.println("******INICIO DEL GENERADOR DE FICHEROS******");
 		infoEstructura = pficheros;
 		
+		nomenclatura = infoEstructura.getNombre();
+        codigoPet = infoEstructura.getCodigo();
+        cantEstructuras = infoEstructura.getCant("est");
+        cantPantallas = infoEstructura.getCant("pant");
+        cantCodPantallas = infoEstructura.getCant("codPant");
+		
+        modulo = nomenclatura;
+        if(nomenclatura.substring(0, 3) == "trf" || nomenclatura.substring(0, 3) == "TRF")
+        {
+        	modulo =  nomenclatura.replaceFirst("(trf|TRF)", "");
+        	modulo =  modulo.replaceAll("[^a-zA-Z]", "");
+        }
+        else
+        {
+        	nomenclatura = "TRF"+nomenclatura.toUpperCase();
+        }
+        System.out.println("MODULO: " + modulo + " de la NOMENCLATURA: "+ nomenclatura);
+        
+        Date fechaCreacion = new Date( );
+	    SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
+	    fecha = ft.format(fechaCreacion);
+        
 		try {
 			paquete1();
+			paqueteCON();
+			paqueteWS();
+			controller();
+			//instr();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("ERROR AL GENERAR EL PRIMER PACK");
@@ -24,15 +61,12 @@ public class generador {
 	}
 	
 	
-	private void paquete1() throws IOException{
-        String nomenclatura = infoEstructura.getNombre();
+	private void paquete1() throws IOException{        
+        
 		String nombreArchivo = "PACK_" + nomenclatura;
-		
-		
+	    
 		//-------SPC------------
 		System.out.println("Se va a generar el archivo: " + nombreArchivo);
-        
-        int cantEstructuras = infoEstructura.getCantEstructuras();
         
         System.out.println("INICIO DE ARCHIVO SPC");
         FileWriter fw_spc = new FileWriter("archivosTemp/" + nombreArchivo + ".spc");
@@ -46,6 +80,9 @@ public class generador {
         			+ "  Descripcion: Paquete para " + nomenclatura);
         bw_spc.newLine();
         bw_spc.newLine();//ESPACIO VACIO
+        bw_spc.write("  " + fecha + "    1.0    " + codigoPet + " Migración del modulo " + nomenclatura + "\r\n"
+        			+"                       Modulo " + modulo + "\r\n"
+        			+"                       Creación");
         bw_spc.newLine();
         bw_spc.write("============================================================================*/");
         bw_spc.newLine();
@@ -190,10 +227,25 @@ public class generador {
         //**DECLARAR logica negocio**
         bw_spc.write("  -- Procedimientos de logica de negocio");
         bw_spc.newLine();
-        bw_spc.write("  /*SIN APLICAR*/");
-        bw_spc.newLine();
-        
-        bw_spc.newLine();//ESPACIO VACIO
+        //**PANTALLAS**
+        for (int i=0; i<cantPantallas; i++)
+        {
+        	pantalla pantalla = infoEstructura.getPantalla(i);
+        	
+        	String procedimiento = "  PROCEDURE " + pantalla.getNombre() + "(";
+        	
+        	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		procedimiento = procedimiento + pantalla.getCampo(c).getNombre() + " " + pantalla.getCampo(c).getEntSal() + pantalla.getCampo(c).getTipo();
+        		if(c<pantalla.getCantCampos()-1) {
+        			procedimiento = procedimiento + ", \r\n               ";
+        		}
+            }
+        	procedimiento = procedimiento + ");";
+        	bw_spc.write(procedimiento);
+            bw_spc.newLine();
+            bw_spc.newLine();//ESPACIO VACIO
+        }
         bw_spc.write("end " + nombreArchivo + ";");
         bw_spc.newLine();
         bw_spc.close();
@@ -499,10 +551,100 @@ public class generador {
         		   + "-- Procedimientos de logica de negocio \r\n"
         		   + "--");
         bw_bdy.newLine();
-        bw_bdy.write("  /*SIN APLICAR*/");
-        bw_bdy.newLine();
-        
-        
+        //**PANTALLAS**
+        for (int i=0; i<cantPantallas; i++)
+        {
+        	pantalla pantalla = infoEstructura.getPantalla(i);
+        	
+        	bw_bdy.write("/*============================================================================ \r\n"
+        				+" Función: " + pantalla.getNombre() + "\r\n"
+        				+" Version: 1.00 \r\n"
+        				+" " + fecha + "  Creacion \r\n"
+        				+"============================================================================*/");
+        	bw_bdy.newLine();
+        	String procedimiento = "PROCEDURE " + pantalla.getNombre() + "(";
+        	
+        	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		procedimiento = procedimiento + pantalla.getCampo(c).getNombre() + " " + pantalla.getCampo(c).getEntSal() + pantalla.getCampo(c).getTipo();
+        		if(c<pantalla.getCantCampos()-1) {
+        			procedimiento = procedimiento + ", \r\n               ";
+        		}
+            }
+        	procedimiento = procedimiento + ") IS";
+        	bw_bdy.write(procedimiento);
+        	bw_bdy.newLine();
+        	bw_bdy.newLine();//ESPACIO VACIO
+        	bw_bdy.write("  V_MODULO VARCHAR2(30) := V_CODPACK||'"+ pantalla.getNombreCorto() +"'; \r\n"
+        				+"  \r\n"
+        				+"  e_error EXCEPTION; \r\n"
+        				+"  \r\n"
+        				+"BEGIN \r\n"
+        				+"  PACK_TRF.Mensaje_Log(PACKDEBUG.LOG_SIM,V_MODULO,'***Inicio***',P_ERROR); \r\n");
+        	
+        	int contTeclas = 0;
+        	for(int t=0; t<pantalla.getTeclas().length;t++)
+        	{
+        		if(pantalla.getActTecla(t))
+        		{
+	        		String apartado;
+	        		if(contTeclas==0){
+	        			apartado = "  IF ";
+	        		} else {
+	        			apartado = "  ELSIF ";
+	        		}
+	        		apartado = apartado + "P_PANORI.TECLA = PACK_TRF.TECLA_" + pantalla.getTecla(t) + " THEN \r\n"
+	        				   + "    --Han pulsado " + pantalla.getTecla(t) + "\r\n"
+	        				   + "    PACK_TRF.Mensaje_Log(PACKDEBUG.LOG_SIM,V_MODULO,'TECLA_"+ pantalla.getTecla(t) +"',P_ERROR); \r\n"; 
+	        		
+	        		if(t==0) {//Tecla de continuar en pantalla
+	        			apartado = apartado + "    \r\n"
+	        					   + "    P_ERROR.CODERR :=0;\r\n";
+	        		} else if (t == 3) {//Unica tecla para volver a la pantalla anterior
+	        			apartado = apartado + "    P_ERROR.CODERR :=-"+ t +";\r\n"
+		     					   + "    P_PANDES.CODMOD := P_PANORI.MODANT;\r\n"
+		        				   + "    P_PANDES.CODPAN := P_PANORI.PANANT;\r\n"
+		     					   + "    raise e_error;\r\n";
+	        		} else {
+	        			apartado = apartado + "    P_ERROR.CODERR :="+ t +";\r\n"
+			     				   + "    P_ERROR.MSGERR := ;\r\n"//FALTA
+			        			   + "    P_ERROR.CAMERR := 8;\r\n"
+			     				   + "    raise e_error;\r\n";
+	        		}
+	        		bw_bdy.write(apartado);
+	        		contTeclas++;
+        		}
+        	}
+        	bw_bdy.write("  ELSE \r\n"
+        			    +"    P_ERROR.CODERR := -1;\r\n"
+        				+"    P_ERROR.MSGERR := ;\r\n"
+        				+"    P_ERROR.LITERR := 'Tecla no válida.';\r\n"
+        				+"	  P_ERROR.CAMERR := 8;\r\n"
+        				+"    raise e_error;\r\n"
+        				+"  END IF;\r\n");
+        	
+        	bw_bdy.write("  -- Comprobar si hay mensajes que mostrar al operario \r\n"
+        				+"  PACK_TRF.PRE_COM4_MENSAJES(P_OPERAR,P_CAMCOM4,P_PANDES,P_ERROR); \r\n  \r\n"
+        				+"  PACK_TRF.Mensaje_Log(PACKDEBUG.LOG_SIM,V_MODULO,'***Fin***',P_ERROR); \r\n  \r\n"
+        				+"EXCEPTION \r\n"
+        				+"  WHEN e_error THEN \r\n"
+        				+"    PACK_TRF.Mensaje_Log(PACKDEBUG.LOG_SIM,V_MODULO,'***Fin '||P_ERROR.LITERR||'***',P_ERROR); \r\n"
+        				+"    P_PANDES.CODMOD := P_PANORI.CODMOD; \r\n"
+        				+"    P_PANDES.CODPAN := P_PANORI.CODPAN; \r\n"
+        				+"    -- Comprobar si hay mensajes que mostrar al operario \r\n"
+        				+"    PACK_TRF.PRE_COM4_MENSAJES(P_OPERAR,P_CAMCOM4,P_PANDES,P_ERROR); \r\n    \r\n"
+        				+"  WHEN OTHERS THEN \r\n"
+        				+"    PACK_TRF.Mensaje_Log(PACKDEBUG.LOG_SIM,V_MODULO,'***Fin Others***',P_ERROR); \r\n"
+        				+"    P_ERROR.CODERR := -999; \r\n"
+        				+"    P_ERROR.ORAERR := SQLCODE; \r\n"
+        				+"    P_ERROR.MSGERR := 'ERROR "+pantalla.getNombreCorto()+"'; \r\n"
+        				+"    P_ERROR.LITERR := SUBSTR(SQLERRM,1,200); \r\n"
+        				+"    P_ERROR.CAMERR := 8; \r\n"
+        				+"    P_PANDES.CODMOD:= '"+nomenclatura+"'; \r\n"
+        				+"    P_PANDES.CODPAN:= '"+modulo+"'; \r\n");
+        	bw_bdy.write("END " + pantalla.getNombre());
+        	bw_bdy.newLine();
+        }
         bw_bdy.newLine();//ESPACIO VACIO
         bw_bdy.write("end " + nombreArchivo + ";");
         bw_bdy.newLine();
@@ -510,7 +652,774 @@ public class generador {
         
     }
 	
+	/* 
+	 * 
+	 * SE GENERA EL PAQUETE CON
+	 * 
+	 */
+	private void paqueteCON() throws IOException{
+		String nombreArchivo = "PACK_" + nomenclatura + "_CON";
+	    
+		//-------SPC------------
+		System.out.println("Se va a generar el archivo: " + nombreArchivo);
+		System.out.println("INICIO DE ARCHIVO SPC_CON");
+        FileWriter fw_spc = new FileWriter("archivosTemp/" + nombreArchivo + ".spc");
+        
+        BufferedWriter bw_spc = new BufferedWriter(fw_spc);
+        
+        bw_spc.write("create or replace package "+ nombreArchivo + " is \r\n"
+    			+ "/*============================================================================ \r\n"
+    			+ "  Procedimiento: " + nombreArchivo + "\r\n"
+    			+ "  Version: 1.0 \r\n"
+    			+ "  Descripcion: Paquete para " + nomenclatura);
+	    bw_spc.newLine();
+	    bw_spc.newLine();//ESPACIO VACIO
+	    bw_spc.write("  " + fecha + "    1.0    " + codigoPet + " Migración del modulo " + nomenclatura + "\r\n"
+	    			+"                       Modulo " + modulo + "\r\n"
+	    			+"                       Creación");
+	    bw_spc.newLine();
+	    bw_spc.write("============================================================================*/");
+	    bw_spc.newLine();
+	    bw_spc.newLine();//ESPACIO VACIO
+	    
+	    bw_spc.write("  -- Procedimientos de logica de negocio");
+	    bw_spc.newLine();
+	    for (int i=0; i<cantPantallas; i++)
+        {
+	    	String nombrePantalla = infoEstructura.getPantalla(i).getNombre();
+	    	bw_spc.write("  PROCEDURE " + nombrePantalla + "_CON;");
+	    	bw_spc.newLine();
+        }
+	    bw_spc.write("  -- Procedimientos de extraccion, actualizacion \r\n"
+	    		   + "  -- y log de variables globales");
+	    bw_spc.newLine();
+	    for (int i=0; i<cantPantallas; i++)
+        {
+	    	String nombrePantalla = infoEstructura.getPantalla(i).getNombre();
+	    	bw_spc.write("  PROCEDURE SEL_" + nombrePantalla + "(json IN OUT PLJSON); \r\n"
+	    				+"  PROCEDURE UPD_" + nombrePantalla + "(json IN pljson); \r\n"
+	    				+"  PROCEDURE LOG_" + nombrePantalla + "(P_TPLOG NUMBER);");
+	    	bw_spc.newLine();
+        }
+	    bw_spc.newLine();//ESPACIO VACIO
+	    bw_spc.write("end " + nombreArchivo + ";");
+        bw_spc.newLine();
+        bw_spc.close();
+        
+        
+        //-------BODY------------
+        System.out.println("INICIO DE ARCHIVO BDY_CON");
+        FileWriter fw_bdy = new FileWriter("archivosTemp/" + nombreArchivo + ".bdy");
+        
+        BufferedWriter bw_bdy = new BufferedWriter(fw_bdy);
+        
+        bw_bdy.write("create or replace package body " + nombreArchivo + " is");
+        bw_bdy.newLine();
+        for (int i=0; i<cantPantallas; i++)
+        {
+        	pantalla pantalla = infoEstructura.getPantalla(i);
+        	
+        	bw_bdy.write("----------------------------------------------------------------------------------\r\n"
+        				+ "PROCEDURE " + pantalla.getNombre() + "_CON IS \r\n"
+        				+"  V_PIS_MODULO   PARAM_INTEGRA_SAP.PIS_MODULO%TYPE := '"+ nomenclatura +"'; \r\n"
+        				+"  V_PIS_ACCESO   PARAM_INTEGRA_SAP.PIS_ACCESO%TYPE := '"+ pantalla.getNombreCorto()+"'; \r\n"
+        				+"  V_PIS_CODIGO   PARAM_INTEGRA_SAP.PIS_CODIGO%TYPE := 'SAP'; \r\n"
+        				+"  \r\n"
+        				+"  ws boolean; -- Indicador modo WS \r\n"
+        				+"  url PARAM_INTEGRA_SAP.PIS_WSURL%TYPE; \r\n"
+        				+"  json pljson; \r\n"
+        				+"  datos clob; \r\n"
+        				+"  \r\n"
+        				+"BEGIN \r\n"
+        				+"  \r\n"
+        				+"  -- Inicializamos variable global del tratamiento de errores \r\n"
+        				+"  PACK_TRF.INI_ERROR(PACK_TRF.G_ERROR,V_PIS_ACCESO); \r\n"
+        				+"  \r\n"
+        				+"  -- Inicializamos variable global que contiene las variables globales de BBDD \r\n"
+        				+"  PACK_TRF.INI_PERSISTENCIA(PACK_TRF.G_PERSISTENCIA); \r\n"
+        				+"  -- Guardamos traza con valores de variables globales \r\n"
+        				+"  -- antes de ejecutar logica de negocio \r\n"
+        				+"  \r\n"
+        				+"  LOG_" + pantalla.getNombre() + "(PACK_TRF.RF_CON); \r\n"
+        				+"  PACK_TRF.COMPROBAR_WS(V_PIS_MODULO,V_PIS_ACCESO,V_PIS_CODIGO,ws,url); \r\n"
+        				+"  \r\n"
+        				+"  IF ws THEN \r\n"
+        				+"    -- Obtengo el JSON con los datos \r\n"
+        				+"    json := pljson('{}'); \r\n"
+        				+"    SEL_"+ pantalla.getNombre() + "(json); \r\n"
+        				+"    datos := json.to_char(false); \r\n"
+        				+"    -- Guardamos traza antes de llamar a WS \r\n"
+        				+"    PACK_TRF.LOG_DATOSBD(PACK_TRF.G_OPERAR,PACK_TRF.G_ERROR,datos,PACK_TRF.CON_WS); \r\n"
+        				+"    -- Llamo al WS \r\n"
+        				+"    PACK_TRF.LLAMAR_WS(url,datos); \r\n"
+        				+"    -- Guardamos traza despues de llamar a WS \r\n"
+        				+"    PACK_TRF.LOG_DATOSBD(PACK_TRF.G_OPERAR,PACK_TRF.G_ERROR,datos,PACK_TRF.WS_CON); \r\n"
+        				+"    -- Actualizo las estructuras con los datos recibidos \r\n"
+        				+"    json := pljson(datos); \r\n"
+        				+"    UPD_"+ pantalla.getNombre() + "(json); \r\n"
+        				+"  ELSE \r\n"
+        				+"    PACK_"+ nomenclatura + "." + pantalla.getNombre() + "(");
+        	int cont_pan=0;
+        	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		campos campo = pantalla.getCampo(c);
+        		String apartado = "";
+        		switch(campo.getTipo()) {
+	    			case "PACK_TRF.RF_PANINFO":
+	    				if(cont_pan == 0) {
+	    					apartado = "PACK_TRF.G_PANORI";
+	    					cont_pan += 1;
+	    				} else if (cont_pan == 1) {
+	    					apartado = "PACK_TRF.G_PANDES";
+	    					cont_pan += 1;
+	    				}
+	    				break;
+	    			case "PACK_TRF.RF_LOGIN":
+	    				apartado = "PACK_TRF.G_OPERAR";
+	    				break;
+	    			case "PACK_TRF.RF_ERROR":
+	    				apartado = "PACK_TRF.G_ERROR";
+	    				break;
+	    			case "PACK_TRF.PAN_COM4":
+	    				apartado = "PACK_TRF.G_CAMCOM4";
+	    				break;
+	    			default:
+	    				String tipo = campo.getTipo();
+	    				System.out.println(tipo.indexOf(".",4));
+	    				int punto = tipo.indexOf(".",4);
+	    				String estructura = tipo.substring(punto+1,tipo.length());
+	    				System.out.println(estructura);
+	    				String paquete = tipo.substring(0,punto-1);
+	    				System.out.println(paquete);
+	    				apartado = paquete +".G_CAM"+estructura;
+	    				break;
+	    		}
+        		if(c<pantalla.getCantCampos()-1) {
+        			apartado = apartado + ",";
+        		}
+        		
+        		if(c%4 == 0 && c>0) {
+        			apartado = apartado + "\r\n                ";
+        		}
+        		
+	    		bw_bdy.write(apartado);
+            }
+        	
+        	bw_bdy.write("); \r\n"
+        				+"  END IF; \r\n"
+        				+"  \r\n"
+        				+"  -- Guardamos traza con valores de variables globales \r\n"
+        				+"  -- despues de ejecutar logica de negocio \r\n"
+        				+"  LOG_"+ pantalla.getNombre() + "(PACK_TRF.CON_RF); \r\n"
+        				+"  \r\n"
+        				+"EXCEPTION \r\n"
+        				+"  WHEN OTHERS THEN \r\n"
+        				+"    --Error al llamar al WS \r\n"
+        				+"    PACK_TRF.G_ERROR.CODERR := -999; \r\n"
+        				+"    PACK_TRF.G_ERROR.ORAERR := SQLCODE; \r\n"
+        				+"    PACK_TRF.G_ERROR.MSGERR := '    ERROR EN WS     '; \r\n"
+        				+"    PACK_TRF.G_ERROR.LITERR := SUBSTR(SQLERRM,1,200); \r\n"
+        				+"    PACK_TRF.G_ERROR.CAMERR := 8; \r\n"
+        				+"    PACK_TRF.G_PANDES.CODMOD := 'TRFCOM01'; \r\n"
+        				+"    PACK_TRF.G_PANDES.CODPAN := 'COM0'; \r\n"
+        				+"END " + pantalla.getNombre() + "_CON; \r\n");
+        	bw_bdy.write("---------------------------------------------------------------------------------- \r\n"
+        			    +"PROCEDURE SEL_" + pantalla.getNombre() + "(json IN OUT PLJSON) IS \r\n"
+        			    +"  /* \r\n"
+        			    +"    Convierte las estructuras a utilizar en "+ pantalla.getNombre() +" en un JSON para pasar al WS"
+        			    +"  */ \r\n"
+        			    +"BEGIN \r\n");
+        	
+        	int cont_pan_sel=0;
+        	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		campos campo = pantalla.getCampo(c);
+        		String apartado = "  --" + campo.getNombre() + "\r\n";
+        		switch(campo.getTipo()) {
+        			case "PACK_TRF.RF_PANINFO":
+        				if(cont_pan_sel == 0) {
+        					apartado = apartado + "  PACK_TRF.SEL_PANORI(json);\r\n";
+        					cont_pan_sel += 1;
+        				} else if (cont_pan_sel == 1) {
+        					apartado = apartado + "  PACK_TRF.SEL_PANDES(json);\r\n";
+        					cont_pan_sel += 1;
+        				}
+        				break;
+        			case "PACK_TRF.RF_LOGIN":
+        				apartado = apartado + "  PACK_TRF.SEL_OPERAR(json);\r\n";
+        				break;
+        			case "PACK_TRF.RF_ERROR":
+        				apartado = apartado + "  PACK_TRF.SEL_ERROR(json);\r\n";
+        				break;
+        			case "PACK_TRF.PAN_COM4":
+        				apartado = apartado + "  PACK_TRF.SEL_CAMCOM4(json);\r\n";
+        				break;
+        			default:
+        				String tipo = campo.getTipo();
+        				System.out.println(tipo.indexOf(".",4));
+        				int punto = tipo.indexOf(".",4);
+        				String estructura = tipo.substring(punto+1,tipo.length());
+        				System.out.println(estructura);
+        				String paquete = tipo.substring(0,punto-1);
+        				System.out.println(paquete);
+        				apartado = apartado +"  "+ paquete +".SEL_CAM"+estructura+"(json);\r\n";
+        				break;
+        		}
+        		bw_bdy.write(apartado);
+        		
+            }
+        	bw_bdy.write("  --P_PERSISTENCIA \r\n"
+        				+"  PACK_TRF.SEL_PERSISTENCIA(json);\r\n");
+        	bw_bdy.write("EXCEPTION \r\n"
+        				+"  WHEN OTHERS THEN \r\n"
+        				+"    NULL; \r\n"
+        				+"END SEL_" + pantalla.getNombre() + ";\r\n");
+        	
+        	bw_bdy.write("\r\n"
+        				+"PROCEDURE UPD_" + pantalla.getNombre() + "(json IN PLJSON) IS \r\n"
+        				+"  /* \r\n"
+	    			    +"    Actualizo los datos de las estructuras a partir del JSON"
+	    			    +"  */ \r\n"
+	    			    +"BEGIN \r\n");
+        	
+        	int cont_pan_upd=0;
+        	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		campos campo = pantalla.getCampo(c);
+        		String apartado = "  --" + campo.getNombre() + "\r\n";
+        		switch(campo.getTipo()) {
+        			case "PACK_TRF.RF_PANINFO":
+        				if(cont_pan_upd == 0) {
+        					apartado = apartado + "  PACK_TRF.UPD_PANORI(json);\r\n";
+        					cont_pan_upd += 1;
+        				} else if (cont_pan_upd == 1) {
+        					apartado = apartado + "  PACK_TRF.UPD_PANDES(json);\r\n";
+        					cont_pan_upd += 1;
+        				}
+        				break;
+        			case "PACK_TRF.RF_LOGIN":
+        				apartado = apartado + "  PACK_TRF.UPD_OPERAR(json);\r\n";
+        				break;
+        			case "PACK_TRF.RF_ERROR":
+        				apartado = apartado + "  PACK_TRF.UPD_ERROR(json);\r\n";
+        				break;
+        			case "PACK_TRF.PAN_COM4":
+        				apartado = apartado + "  PACK_TRF.UPD_CAMCOM4(json);\r\n";
+        				break;
+        			default:
+        				String tipo = campo.getTipo();
+        				System.out.println(tipo.indexOf(".",4));
+        				int punto = tipo.indexOf(".",4);
+        				String estructura = tipo.substring(punto+1,tipo.length());
+        				System.out.println(estructura);
+        				String paquete = tipo.substring(0,punto-1);
+        				System.out.println(paquete);
+        				apartado = apartado +"  "+ paquete +".UPD_CAM"+estructura+"(json);\r\n";
+        				break;
+        		}
+        		bw_bdy.write(apartado);
+        		
+            }
+        	bw_bdy.write("  --P_PERSISTENCIA \r\n"
+        				+"  PACK_TRF.UPD_PERSISTENCIA(json);\r\n");
+	    	bw_bdy.write("EXCEPTION \r\n"
+	    				+"  WHEN OTHERS THEN \r\n"
+	    				+"    NULL; \r\n"
+	    				+"END UPD_" + pantalla.getNombre() + ";\r\n");
+	    	
+	    	bw_bdy.write("\r\n"
+	    				+"PROCEDURE LOG_" + pantalla.getNombre() + "(P_TIPLOG NUMBER) IS \r\n"
+	    				+"  "
+	    			    +"BEGIN \r\n");
+
+	    	int cont_pan_log=0;
+        	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		campos campo = pantalla.getCampo(c);
+        		String apartado = "  --" + campo.getNombre() + "\r\n";
+        		switch(campo.getTipo()) {
+        			case "PACK_TRF.RF_PANINFO":
+        				if(cont_pan_log == 0) {
+        					apartado = apartado + "  PACK_TRF.LOG_PANORI(json);\r\n";
+        					cont_pan_log += 1;
+        				} else if (cont_pan_log == 1) {
+        					apartado = apartado + "  PACK_TRF.LOG_PANDES(json);\r\n";
+        					cont_pan_log += 1;
+        				}
+        				break;
+        			case "PACK_TRF.RF_LOGIN":
+        				apartado = apartado + "  PACK_TRF.LOG_OPERAR(json);\r\n";
+        				break;
+        			case "PACK_TRF.RF_ERROR":
+        				apartado = apartado + "  PACK_TRF.LOG_ERROR(json);\r\n";
+        				break;
+        			case "PACK_TRF.PAN_COM4":
+        				apartado = apartado + "  PACK_TRF.LOG_CAMCOM4(json);\r\n";
+        				break;
+        			default:
+        				String tipo = campo.getTipo();
+        				System.out.println(tipo.indexOf(".",4));
+        				int punto = tipo.indexOf(".",4);
+        				String estructura = tipo.substring(punto+1,tipo.length());
+        				System.out.println(estructura);
+        				String paquete = tipo.substring(0,punto-1);
+        				System.out.println(paquete);
+        				apartado = apartado +"  "+ paquete +".LOG_CAM"+estructura+"(json);\r\n";
+        				break;
+        		}
+        		bw_bdy.write(apartado);
+        		
+            }
+        	bw_bdy.write("  --P_PERSISTENCIA \r\n"
+        				+"  PACK_TRF.LOG_PERSISTENCIA(json);\r\n");
+	    	bw_bdy.write("EXCEPTION \r\n"
+	    				+"  WHEN OTHERS THEN \r\n"
+	    				+"    NULL; \r\n"
+	    				+"END LOG_" + pantalla.getNombre() + ";\r\n");
+        }
+        
+        bw_bdy.newLine();//ESPACIO VACIO
+        bw_bdy.write("end " + nombreArchivo + ";");
+        bw_bdy.newLine();
+        bw_bdy.close();
+	}
 	
+	/* 
+	 * 
+	 * SE GENERA EL PAQUETE WS
+	 * 
+	 */
+	private void paqueteWS() throws IOException{
+		String nombreArchivo = "PACK_" + nomenclatura + "_WS";
+	    
+		//-------SPC------------
+		System.out.println("Se va a generar el archivo: " + nombreArchivo);
+		System.out.println("INICIO DE ARCHIVO SPC_WS");
+        FileWriter fw_spc = new FileWriter("archivosTemp/" + nombreArchivo + ".spc");
+        
+        BufferedWriter bw_spc = new BufferedWriter(fw_spc);
+        
+        bw_spc.write("create or replace package "+ nombreArchivo + " is \r\n"
+	    			+ "/*============================================================================ \r\n"
+	    			+ "  Procedimiento: " + nombreArchivo + "\r\n"
+	    			+ "  Version: 1.0 \r\n"
+	    			+ "  Descripcion: Paquete para " + nomenclatura);
+	    bw_spc.newLine();
+	    bw_spc.newLine();//ESPACIO VACIO
+	    bw_spc.write("  " + fecha + "    1.0    " + codigoPet + " Migración del modulo " + nomenclatura + "\r\n"
+	    			+"                       Modulo " + modulo + "\r\n"
+	    			+"                       Creación");
+	    bw_spc.newLine();
+	    bw_spc.write("============================================================================*/");
+	    bw_spc.newLine();
+	    bw_spc.newLine();//ESPACIO VACIO
+	    
+	    for (int i=0; i<cantPantallas; i++)
+        {
+	    	String nombrePantalla = infoEstructura.getPantalla(i).getNombre();
+	    	bw_spc.write("  PROCEDURE " + nombrePantalla + "_WS(datos IN OUT CLOB);");
+	    	bw_spc.newLine();
+        }
+        
+	    bw_spc.newLine();//ESPACIO VACIO
+	    bw_spc.write("end " + nombreArchivo + ";");
+	    bw_spc.newLine();
+	    bw_spc.close();
+        
+        
+        //-------BODY------------
+        System.out.println("INICIO DE ARCHIVO BDY_WS");
+        FileWriter fw_bdy = new FileWriter("archivosTemp/" + nombreArchivo + ".bdy");
+        
+        BufferedWriter bw_bdy = new BufferedWriter(fw_bdy);
+        
+        bw_bdy.write("create or replace package body"+ nombreArchivo + " is \r\n");
+        for (int i=0; i<cantPantallas; i++)
+        {
+	    	String nombrePantalla = infoEstructura.getPantalla(i).getNombre();
+	    	bw_bdy.write("---------------------------------------------------------------------------------- \r\n"
+	    				+"PROCEDURE " + nombrePantalla + "_WS(datos IN OUT CLOB) IS \r\n"
+	    				+"  json pljson; \r\n"
+	    				+"BEGIN \r\n"
+	    				+"  --Actualizo los datos de las estructuras a partir del JSON \r\n"
+	    				+"  json := pljson(datos); \r\n"
+	    				+"  PACK_"+ nomenclatura + "_CON.UPD_" + nombrePantalla + "(json); \r\n"
+	    				+"  \r\n"
+	    				+"  -- Guardamos traza con valores de variables globales \r\n"
+	    				+"  -- antes de ejecutar logica de negocio \r\n"
+	    				+"  PACK_"+ nomenclatura + "_CON.LOG_" + nombrePantalla + "(PACK_TRF.WS_NEG); \r\n"
+	    				+"  \r\n"
+	    				+"  -- Llamo al procedimiento \r\n"
+	    				+"  PACK_"+ nomenclatura + "." + nombrePantalla + "(");
+	    	int cont_pan=0;
+	    	pantalla pantalla = infoEstructura.getPantalla(i);
+	    	for (int c=0; c<pantalla.getCantCampos(); c++)
+            {
+        		campos campo = pantalla.getCampo(c);
+        		String apartado = "";
+        		switch(campo.getTipo()) {
+	    			case "PACK_TRF.RF_PANINFO":
+	    				if(cont_pan == 0) {
+	    					apartado = "PACK_TRF.G_PANORI";
+	    					cont_pan += 1;
+	    				} else if (cont_pan == 1) {
+	    					apartado = "PACK_TRF.G_PANDES";
+	    					cont_pan += 1;
+	    				}
+	    				break;
+	    			case "PACK_TRF.RF_LOGIN":
+	    				apartado = "PACK_TRF.G_OPERAR";
+	    				break;
+	    			case "PACK_TRF.RF_ERROR":
+	    				apartado = "PACK_TRF.G_ERROR";
+	    				break;
+	    			case "PACK_TRF.PAN_COM4":
+	    				apartado = "PACK_TRF.G_CAMCOM4";
+	    				break;
+	    			default:
+	    				String tipo = campo.getTipo();
+	    				System.out.println(tipo.indexOf(".",4));
+	    				int punto = tipo.indexOf(".",4);
+	    				String estructura = tipo.substring(punto+1,tipo.length());
+	    				System.out.println(estructura);
+	    				String paquete = tipo.substring(0,punto-1);
+	    				System.out.println(paquete);
+	    				apartado = paquete +".G_CAM"+estructura;
+	    				break;
+	    		}
+        		if(c<pantalla.getCantCampos()-1) {
+        			apartado = apartado + ",";
+        		}
+        		
+        		if(c%4 == 0 && c>0) {
+        			apartado = apartado + "\r\n                ";
+        		}
+        		
+	    		bw_bdy.write(apartado);
+            }
+	    	bw_bdy.write("); \r\n"
+	    				+"  -- Convierto a JSON para devolver al WS \r\n"
+	    				+"  PACK_"+ nomenclatura + "_CON.SEL_" + nombrePantalla +"(json); \r\n"
+	    				+"  datos := json.to_char(false); \r\n"
+	    				+"  \r\n"
+	    				+"  -- Guardamos traza con valores de variables globales \r\n"
+	    				+"  -- despues de ejecutar logica de negocio \r\n"
+	    				+"  PACK_"+ nomenclatura + "_CON.LOG_" + nombrePantalla + "(PACK_TRF.NEG_WS); \r\n"
+	    				+"EXCEPTION \r\n"
+	    				+"  WHEN OTHERS THEN \r\n"
+	    				+"    PACK_TRF_WS.TRATAR_ERROR(datos,SLQCODE,SQLERRM); \r\n"
+	    				+"END "+ nombrePantalla + "_WS;");
+	    	bw_bdy.newLine();
+        }
+        
+        bw_bdy.newLine();//ESPACIO VACIO
+        bw_bdy.write("end " + nombreArchivo + ";");
+        bw_bdy.newLine();
+        bw_bdy.close();
+	}
 	
+	/* 
+	 * 
+	 * SE GENERA EL Controller java
+	 * 
+	 */
+	private void controller() throws IOException{
+		String nombreArchivo = nomenclatura.toLowerCase() + "Controller";
+	    
+		//-------Controller------------
+		System.out.println("Se va a generar el archivo: " + nombreArchivo);
+		System.out.println("INICIO DE CONTROLLER");
+        FileWriter fw_ctr = new FileWriter("archivosTemp/" + nombreArchivo + ".java");
+        
+        BufferedWriter bw_ctr = new BufferedWriter(fw_ctr);
+        
+        bw_ctr.write("/*============================================================================ \r\n"
+        			+"  "+nomenclatura.toLowerCase()+"Controller \r\n"
+        			+"  Version: 1.0 \r\n"
+        			+"  Descripcion: Webservice para modulo " + nomenclatura + "\r\n"
+        			+"  "+fecha+"    1.0    Creacion\r\n"
+        			+"============================================================================*/ \r\n"
+        			+"package es.inlogconsulting.ws.Controller;\r\n"
+        			+"import org.springframework.beans.factory.annotation.Autowired;\r\n"
+        			+"import org.springframework.web.bind.annotation.RequestBody;\r\n"
+        			+"import org.springframework.web.bind.annotation.RequestMapping;\r\n"
+        			+"import org.springframework.web.bind.annotation.RequestMethod;\r\n"
+        			+"import org.springframework.web.bind.annotation.RestController;\r\n"
+        			+"\r\n"
+        			+"import es.inlogconsulting.ws.Dao.DatabaseDao;\r\n"
+        			+"\r\n"
+        			+"@RestController\r\n"
+        			+"public class " +nombreArchivo+" {\r\n"
+        			+"    @Autowired\r\n"
+        			+"	  private DatabaseDao dbDao; \r\n"
+        			+"	  \r\n"
+        			+"	  static final String PACKAGE = PACK_"+ nomenclatura.toUpperCase() +"_WS; //Nombre paquete a ejecutar\r\n");
+        
+        for (int i=0; i<cantPantallas; i++)
+        {
+	    	String nombrePantalla = infoEstructura.getPantalla(i).getNombre();
+	    	
+	    	bw_ctr.write("    \r\n"
+	    				+"    @RequestMapping(value = \"/"+nomenclatura.toLowerCase()+"/"+nombrePantalla+"\", method = RequestMethod.PUT, produces = \"application/json\")\r\n"
+	    				+"    public String "+nombrePantalla+"(@RequestBody(required = false) String json) {\r\n"	
+	    				+"        String nomprc = \""+nombrePantalla +"_WS\";\r\n"
+	    				+"		  json =(String) dbDao.executeSP(PACKAGE, nomprc, json);\r\n"
+	    				+"        return json;\r\n"
+	    				+"    }\r\n");
+        }
+        
+        bw_ctr.write("}");
+        bw_ctr.newLine();
+        bw_ctr.close();
+	}
 	
+	/* 
+	 * 
+	 * SE GENERA EL archivo instrucciones de BBDD
+	 * 
+	 */
+	private void instr() throws IOException{
+		//-------SGA------------
+		String nombreArchivo = "instr_SGA_"+codigoPet +"_Migracion_"+nomenclatura.toUpperCase();
+	    
+		System.out.println("Se va a generar el archivo: " + nombreArchivo);
+		System.out.println("INICIO DE instr-SGA");
+        FileWriter fw_sga = new FileWriter("archivosTemp/" + nombreArchivo + ".sql");
+        
+        BufferedWriter bw_sga = new BufferedWriter(fw_sga);
+        
+        bw_sga.write("---\r\n"
+        			+"-- Id: "+nombreArchivo+".sql\r\n"
+        			+"-- Script de instalacion principal\r\n"
+        			+"--\r\n"
+        			+"\r\n"
+        			+"---\r\n"
+        			+"-- Directorios instalacion\r\n"
+        			+"define dircmb='./'\r\n"
+        			+"define dirjob='../sql/Bd9/job/'\r\n"
+        			+"define dirfnc='../sql/Bd9/pl/fnc/'\r\n"
+        			+"define dirprc='../sql/Bd9/pl/prc/'\r\n"
+        			+"define dirspc='../sql/Bd9/pl/spc/'\r\n"
+        			+"define dirbdy='../sql/Bd9/pl/bdy/'\r\n"
+        			+"define dirtrg='../sql/Bd9/trg/'\r\n"
+        			+"-- Tablas, vistas, datos, secuencias, grants y sinonimos se instalaran desde este instalador\r\n"
+        			+"\r\n"
+        			+"-- Tablespaces\r\n"
+        			+"define ts_data='USERS'\r\n"
+        			+"define ts_indx='INDX'\r\n"
+        			+"define ts_temp='TEMP01'\r\n"
+        			+"\r\n"
+        			+"-- Tablas\r\n"
+        			+"-- Foreign Keys\r\n"
+        			+"\r\n"
+        			+"-- Create table\r\n"
+        			+"\r\n"
+        			+"-- Comentarios\r\n"
+        			+"\r\n"
+        			+"-- Primary Keys\r\n"
+        			+"\r\n"
+        			+"-- Indices\r\n"
+        			+"\r\n"
+        			+"-- Checks\r\n"
+        			+"\r\n"
+        			+"-- Vistas\r\n"
+        			+"\r\n"
+        			+"-- Datos\r\n");
+        
+        for (int i=0; i<cantCodPantallas; i++)
+        {
+	    	codigoPantalla codPantalla = infoEstructura.getCodigosPantalla(i);
+	    	
+	    	bw_sga.write("INSERT INTO RF_PANTALLAS(RFP_MODULO,RFP_CODIGO,RFP_DENOMI) VALUES('"+nomenclatura.toUpperCase()+"','ENT"+codPantalla.getNumPant()+"','"+codPantalla.getDescPant()+"');\r\n");
+        }
+        bw_sga.write("\r\n");
+        
+        for (int i=0; i<cantPantallas; i++)
+        {
+        	pantalla Pantalla = infoEstructura.getPantalla(i);
+        	
+        	bw_sga.write("INSERT INTO PARAM_INTEGRA_SAP(PIS_MODULO,PIS_ACCESO,PIS_CODIGO,PIS_DENOMI,PIS_VALALF,PIS_WSURL)\r\n"
+        			   + " VALUES('"+nomenclatura.toUpperCase()+"','"+Pantalla.getNombreCorto()+"','SAP','Comunicación con SAP? (S/N)','S','http://172.20.0.125:8091/"+nomenclatura.toLowerCase()+"/"+Pantalla.getNombre().toLowerCase()+"');\r\n");
+        }
+        bw_sga.write("\r\n"
+        			+"-- Secuencias\r\n"
+        			+ "\r\n"
+        			+ "-- Grants\r\n"
+        			+ "\r\n"
+        			+ "-- Sinonimos\r\n"
+        			+ "\r\n"
+        			+ "--\r\n"
+        			+ "-- procedimientos, funciones, paquetes, triggers\r\n"
+        			+ "@&dirspc.pack_" + nomenclatura.toLowerCase()+".spc\r\n"
+        			+ "@&dirspc.pack_" + nomenclatura.toLowerCase()+"_con.spc\r\n"
+        			+ "@&dirspc.pack_" + nomenclatura.toLowerCase()+"_ws.spc\r\n"
+        			+ "@&dirbdy.pack_" + nomenclatura.toLowerCase()+".bdy\r\n"
+        			+ "@&dirbdy.pack_" + nomenclatura.toLowerCase()+"_con.bdy\r\n"
+        			+ "@&dirbdy.pack_" + nomenclatura.toLowerCase()+"_ws.bdy\r\n"
+        			+ "\r\n"
+        			+ "--fin\r\n");
+        
+        bw_sga.close();
+        
+        //-------SYSTEM------------
+      		nombreArchivo = "instr_SYSTEM_"+codigoPet +"_Migracion_"+nomenclatura.toUpperCase();
+      	    
+      		System.out.println("Se va a generar el archivo: " + nombreArchivo);
+      		System.out.println("INICIO DE instr-SYSTEM");
+            FileWriter fw_system = new FileWriter("archivosTemp/" + nombreArchivo + ".sql");
+              
+            BufferedWriter bw_system = new BufferedWriter(fw_system);
+              
+            bw_system.write("---\r\n"
+		            	   +"-- Id: "+nombreArchivo+".sql\r\n"
+		            	   +"-- Script de instalacion principal\r\n"
+		            	   +"--\r\n"
+		            	   +"---\r\n"
+		            	   +"  \r\n"
+		            	   +"-- Directorios instalacion\r\n"
+		            	   +"define dircmb='./'\r\n"
+		            	   +"define dircreauser='../sql/Bd9/CreaUser/'\r\n"
+		            	   +"-- Tablas, vistas, datos, secuencias, grants y sinonimos se instalaran desde este instalador\r\n"
+		                   +"  \r\n"
+		            	   +"  \r\n"
+		            	   +"-- Tablespaces\r\n"
+		            	   +"define ts_data='USERS'\r\n"
+		            	   +"define ts_indx='INDX'\r\n"
+		            	   +"define ts_temp='TEMP01'\r\n"
+		            	   +"  \r\n"
+		            	   +"define us_sgl='VIRSGLXXX'\r\n"
+		            	   +"define us_int='VIRINTXXX'\r\n"
+		            	   +"define us_sga='ADM_VIRTOXXX'\r\n"
+		            	   +"define us_ax='USAXXXX'\r\n"
+		            	   +"define us_sap='USSAPXXX'\r\n"
+		            	   +"define us_utl='USUTLXXX'\r\n"
+		            	   +"define us_mar='MARKEMXXX'\r\n"
+		            	   +"define us_e80='E80XXX'\r\n"
+		            	   +"define us_meca='MECALUXXXX'\r\n"
+		            	   +"define us_dem='DEMATICXXX'\r\n"
+		            	   +"define us_syseur='SYSEUROPEXXX'\r\n"
+		            	   +"define us_sinter='SINTERPACKXXX'\r\n"
+		            	   +"define us_dis='DISCOVERXXX'\r\n"
+		            	   +"define us_disofn='DISC_OFNXXX'\r\n"
+		            	   +"define us_uswaf='WAFXXX'\r\n"
+		            	   +"  \r\n"
+		            	   +"define us_gelsga='GELSGAXXX'\r\n"
+		            	   +"define us_etiq='ETIQUETASXXX'\r\n"
+		            	   +"define us_nlink='NLINKXXX'\r\n"
+		            	   +"define us_persga='SISLOGPERXXX'\r\n"
+		            	   +"define us_prv='VIRPRVXXX'\r\n"
+		            	   +"define us_cam='VIRCAMXXX'\r\n"
+		            	   +"define us_mtr='VIRMTRXXX'\r\n"
+		            	   +"define us_ingerus='INGERUSXXX'\r\n"
+		            	   +"define us_urtasun='URTASUNXXX'\r\n"
+		            	   +"define us_goitek='GOITEKXXX'\r\n"
+		            	   +"define us_federico='FEDERICOXXX'\r\n"
+		            	   +"define us_uvirto='UVIRTOXXX'\r\n"
+		            	   +"  \r\n"
+		            	   +"-- Usuarios\r\n"
+		            	   +"  \r\n"
+		            	   +"-- Tablas\r\n"
+		            	   +"  \r\n"
+		            	   +"-- Create table\r\n"
+		            	   +"  \r\n"
+		            	   +"-- Comentarios\r\n"
+		            	   +"  \r\n"
+		            	   +"-- Primary Keys\r\n"
+		            		+ "\r\n"
+		            		+ "-- Foreign Keys\r\n"
+		            		+ "\r\n"
+		            		+ "-- Indices\r\n"
+		            		+ "\r\n"
+		            		+ "-- Checks\r\n"
+		            		+ "\r\n"
+		            		+ "-- Vistas\r\n"
+		            		+ "\r\n"
+		            		+ "-- Datos\r\n"
+		            		+ "\r\n"
+		            		+ "-- Secuencias\r\n"
+		            		+ "\r\n"
+		            		+ "-- Grants\r\n"
+		            		+ "GRANT EXECUTE ON ADM_VIRTOPAX.PACK_"+nomenclatura.toUpperCase()+"_WS TO USSAPPAX;\r\n"
+		            		+ "\r\n"
+		            		+ "-- Sinonimos\r\n"
+		            		+ "CREATE OR REPLACE SYNONYM USSAPPAX.PACK_"+nomenclatura.toUpperCase()+"_WS FOR ADM_VIRTOPAX.PACK_"+nomenclatura.toUpperCase()+"_WS;\r\n"
+		            		+ "\r\n"
+		            		+ "--\r\n"
+		            		+ "-- procedimientos, funciones, paquetes, triggers\r\n"
+		            		+ "--@&dirjob.\r\n"
+		            		+ "--@&dirfnc.\r\n"
+		            		+ "--@&dirprc.\r\n"
+		            		+ "--@&dirspc.\r\n"
+		            		+ "--@&dirbdy\r\n"
+		            		+ "--@&dirtrg.\r\n"
+		            		+ "\r\n"
+		            		+ "\r\n"
+		            		+ "\r\n"
+		            		+ "--fin\r\n");  
+            
+            bw_system.close();
+	}
+	
+	/* 
+	 * 
+	 * SE GENERA EL archivo guia
+	 * 
+	 */
+	private void guia() throws IOException{
+		String nombreArchivo = "gi_"+codigoPet +"_Migracion_"+nomenclatura.toUpperCase();
+	    
+		//-------Guia------------
+		System.out.println("Se va a generar el archivo: " + nombreArchivo);
+		System.out.println("INICIO DE GUIA");
+        FileWriter fw_gi = new FileWriter("archivosTemp/" + nombreArchivo + ".txt");
+        
+        BufferedWriter bw_gi = new BufferedWriter(fw_gi);
+        
+        bw_gi.write("-- "+codigoPet+". Migración del módulo " + modulo+" ("+nomenclatura.toUpperCase()+")\r\n"
+        		+ "---\r\n"
+        		+ "  \r\n"
+        		+ "1- Base de Datos:\r\n"
+        		+ "-cmb:                 -\r\n"
+        		+ "						SGA/instr_SGA_"+codigoPet+"_Migracion_"+nomenclatura.toUpperCase()+".sql\r\n"
+        		+ "						SYSTEM/instr_SYSTEM_"+codigoPet+"_Migracion_"+nomenclatura.toUpperCase()+".SQL\r\n"
+        		+ "-tab:				 -\r\n"
+        		+ "-vis:                 -\r\n"
+        		+ "-seq:				 -\r\n"
+        		+ "-job:                 -\r\n"
+        		+ "-fnc:                 -\r\n"
+        		+ "-prc:                 -\r\n"
+        		+ "-spc:                 SGA\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+".scp\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+"_con.scp\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+"_ws.scp\r\n"
+        		+ "-bdy:                 SGA\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+".bdy\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+"_con.bdy\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+"_ws.bdy\r\n"
+        		+ "-sql:                 -\r\n"
+        		+ "\r\n"
+        		+ "-trg:                 -\r\n"
+        		+ "\r\n"
+        		+ "-cron:                -\r\n"
+        		+ "\r\n"
+        		+ "-sql:                 -\r\n"
+        		+ "\r\n"
+        		+ "2-Procesos (proc):\r\n"
+        		+ "-obj:                 SGA\r\n"
+        		+ "\r\n"
+        		+ "-mak:                 -\r\n"
+        		+ "\r\n"
+        		+ "-compilacion:         -\r\n"
+        		+ "\r\n"
+        		+ "3- Servidor (scripts):\r\n"
+        		+ "-cmd:                 -\r\n"
+        		+ "\r\n"
+        		+ "-sql:                 -\r\n"
+        		+ "\r\n"
+        		+ "5- Pantallas/Reports (Ruta de Menu):\r\n"
+        		+ "\r\n"
+        		+ "--fin");
+        
+        bw_gi.close();
+	}
 }
