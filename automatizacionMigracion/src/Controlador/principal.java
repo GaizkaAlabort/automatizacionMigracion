@@ -42,7 +42,7 @@ public class principal implements ActionListener{
 		else if(e.getSource()==listaEstructura.btnGenerar && listaEstructura.comprobarGenerar()) {
 			listaEstructura.setVisible(false);
 			System.out.println("//PRINCIPAL// Numero de estructuras: " + listaEstructura.getListaTam());
-			listaPantalla = new listaPantallas(listaEstructura.getListaNomEst(nomenclatura.getNomenclatura()));
+			listaPantalla = new listaPantallas(nomenclatura.getNomenclatura(),listaEstructura.getListaEst()/*listaEstructura.getListaNomEst(nomenclatura.getNomenclatura())*/);
 			listaPantalla.btnGenerar.addActionListener((ActionListener) this);
 			
 			//Hacemos visible la nueva pantalla

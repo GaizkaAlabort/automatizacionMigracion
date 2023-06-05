@@ -10,10 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import Modelo.celdaAccion;
-import Modelo.editorAccion;
-import Modelo.eventosAccion;
 import Modelo.codigoPantalla;
+import Modelo.estructura;
 
 import java.awt.BorderLayout;
 import javax.swing.JButton;
@@ -21,6 +19,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import Modelo.pantalla;
+import Modelo.Accion.celdaAccion;
+import Modelo.Accion.editorAccion;
+import Modelo.Accion.eventosAccion;
 
 public class listaPantallas extends JFrame implements ActionListener{
 
@@ -32,8 +33,9 @@ public class listaPantallas extends JFrame implements ActionListener{
 	private DefaultTableModel modelo;
 	
 	private ArrayList<pantalla> listaPantallas;
-	private ArrayList<String> listaNombreEstructuras;
+	private ArrayList<estructura> listaEstructuras;
 	private ArrayList<codigoPantalla> listaCodigosPantalla;
+	private String nomenclatura;
 
 	/**
 	 * Launch the application.
@@ -42,8 +44,9 @@ public class listaPantallas extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ArrayList<String> listaNombreEst=new ArrayList<String>();
-					listaPantallas frame = new listaPantallas(listaNombreEst);
+					ArrayList<estructura> listaNombreEst=new ArrayList<estructura>();
+					String nomenclatura = "PRUE";
+					listaPantallas frame = new listaPantallas(nomenclatura,listaNombreEst);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,14 +58,15 @@ public class listaPantallas extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public listaPantallas(ArrayList<String> listaNombreEst) {
+	public listaPantallas(String nomenclatura,ArrayList<estructura> listaNombreEst) {
 		System.out.println("***Inicio inicializar listaPantallas***");
 		listaPantallas = new ArrayList<pantalla>();
+		this.nomenclatura=nomenclatura;
 		listaCodigosPantalla = new ArrayList<codigoPantalla>();
 		if(listaNombreEst.size()==0) {
-			listaNombreEstructuras = new ArrayList<String>();
+			listaEstructuras = new ArrayList<estructura>();
 		} else {
-			listaNombreEstructuras = listaNombreEst;
+			listaEstructuras = listaNombreEst;
 		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -119,7 +123,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 				Autor: https://es.stackoverflow.com/users/19623/awes0mem4n
 				Modificado para recogida de datos
 				**/
-				pantallaNuevaPantalla minuevaPantalla= new pantallaNuevaPantalla(listaPantallas.get(fila), listaNombreEstructuras,listaCodigosPantalla){
+				pantallaNuevaPantalla minuevaPantalla= new pantallaNuevaPantalla(nomenclatura,listaPantallas.get(fila), listaEstructuras,listaCodigosPantalla){
 				            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
 				            @Override
 				            public void dispose(){
@@ -199,7 +203,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 			Modificado para recogida de datos
 			**/
 			
-			pantallaNuevaPantalla minuevaPantalla= new pantallaNuevaPantalla(null, listaNombreEstructuras,listaCodigosPantalla){
+			pantallaNuevaPantalla minuevaPantalla= new pantallaNuevaPantalla(nomenclatura,null, listaEstructuras,listaCodigosPantalla){
 			            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
 			            @Override
 			            public void dispose(){

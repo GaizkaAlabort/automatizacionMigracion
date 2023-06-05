@@ -15,10 +15,13 @@ public class variable {
 	private ArrayList<variable> listaVariables;
 	private String nombre_varray;
 	
+	private String opcion;
+	
 	public variable(String pNombre, String pTipo, int pCantidad) {
 		nombreVariable = pNombre;
 		tipo = pTipo;
 		cantidad = pCantidad;
+		opcion = "basico";
 	}
 	
 	//OPCION VARIABLE PERSONALIZADO
@@ -31,6 +34,7 @@ public class variable {
 		tabla = pTabla;
 		columna = pColumna;
 		tipo_pers = pTipoPers;
+		opcion = "pers";
 	}
 	
 	//OPCION VARIABLE VARRAY
@@ -40,6 +44,7 @@ public class variable {
 		
 		nombre_varray = pNombreEst;
 		listaVariables=pListaVariables;
+		opcion = "varray";
 	}
 
 	
@@ -87,5 +92,9 @@ public class variable {
 	
 	public ArrayList<variable> getLista(){
 		return listaVariables;
+	}
+	
+	public String getOpcion() {
+		return opcion;
 	}
 }

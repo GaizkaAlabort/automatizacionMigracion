@@ -1,4 +1,4 @@
-package Modelo;
+package Modelo.Accion;
 
 import java.awt.Component;
 

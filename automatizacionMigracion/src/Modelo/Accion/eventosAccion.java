@@ -1,4 +1,4 @@
-package Modelo;
+package Modelo.Accion;
 
 public interface eventosAccion {
 	
