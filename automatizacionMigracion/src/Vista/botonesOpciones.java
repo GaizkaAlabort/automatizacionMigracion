@@ -2,8 +2,8 @@ package Vista;
 
 import javax.swing.JPanel;
 
-import Modelo.botonAccion;
-import Modelo.eventosAccion;
+import Modelo.Accion.botonAccion;
+import Modelo.Accion.eventosAccion;
 
 import javax.swing.JButton;
 import javax.swing.ImageIcon;

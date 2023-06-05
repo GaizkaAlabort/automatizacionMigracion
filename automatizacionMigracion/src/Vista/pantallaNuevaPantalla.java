@@ -19,6 +19,9 @@ import Modelo.codigoPantalla;
 import Modelo.estructura;
 import Modelo.pantalla;
 import Modelo.variable;
+import Modelo.Info.editorInfo;
+import Modelo.Info.eventoInfo;
+import Modelo.Info.rendererInfo;
 
 import java.awt.BorderLayout;
 
@@ -75,7 +78,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					pantallaNuevaPantalla frame = new pantallaNuevaPantalla(null, null, null);
+					pantallaNuevaPantalla frame = new pantallaNuevaPantalla(null,null, null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -87,7 +90,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public pantallaNuevaPantalla(pantalla editPantalla, ArrayList<String> listaNombreEst, ArrayList<codigoPantalla> listaCodPantalla) {
+	public pantallaNuevaPantalla(String nomenclatura,pantalla editPantalla, ArrayList<estructura> listaNombreEst, ArrayList<codigoPantalla> listaCodPantalla) {
 		System.out.println("***Inicio inicializar nuevaPantalla***");
 		if (editPantalla == null) {
 			nombre = new JTextField();
@@ -106,7 +109,13 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		if(listaNombreEst == null) {
 			listaNombreEstructuras = new ArrayList<String>();
 		} else {
-			listaNombreEstructuras = listaNombreEst;
+			listaNombreEstructuras = new ArrayList<String>();
+			for (int i=0; i<listaNombreEst.size(); i++)
+	        {
+	        	estructura estructura = listaNombreEst.get(i);
+	        	
+	        	listaNombreEstructuras.add("PACK_" + nomenclatura + ".PAN_" + estructura.getNombre());
+	        }
 		}
 		
 		if(listaCodPantalla == null) {
@@ -153,14 +162,12 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		tablaCampos = new JTable();
 		
 		modelo=new DefaultTableModel(){
-			boolean[] columnEditables = new boolean[] {true, true, true, true};
+			boolean[] columnEditables = new boolean[] {true, true, true, true, true};
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
 			
-			
-			
-			Class[] tipos = new Class[]{java.lang.Object.class,java.lang.Object.class,java.lang.Boolean.class,java.lang.Boolean.class};
+			Class[] tipos = new Class[]{java.lang.Object.class,java.lang.Object.class,null,java.lang.Boolean.class,java.lang.Boolean.class};
 			public Class getColumnClass(int column) {
 				return tipos[column];
 			}
@@ -170,20 +177,22 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		
 		modelo.addColumn("Nombre");
 		modelo.addColumn("Tipo");
+		modelo.addColumn(" ");
 		modelo.addColumn("IN");
 		modelo.addColumn("OUT");
 		
 		if (editPantalla != null) {
 			for (int i=0; i< listaCampos.size(); i++) {
 				campos campo = listaCampos.get(i);
-				modelo.addRow(new Object[]{campo.getNombre(),campo.getTipo(),campo.getIn(),campo.getOut()});
+				modelo.addRow(new Object[]{campo.getNombre(),campo.getTipo(),null,campo.getIn(),campo.getOut()});
 			}
 		}
 		
 		tablaCampos.getColumnModel().getColumn(0).setMaxWidth(250);
 		tablaCampos.getColumnModel().getColumn(1).setMaxWidth(250);
-		tablaCampos.getColumnModel().getColumn(2).setMaxWidth(50);
+		tablaCampos.getColumnModel().getColumn(2).setMaxWidth(15);
 		tablaCampos.getColumnModel().getColumn(3).setMaxWidth(50);
+		tablaCampos.getColumnModel().getColumn(4).setMaxWidth(50);
 		
 		TableColumn sportColumn = tablaCampos.getColumnModel().getColumn(1);
 		ArrayList<String> intermedio = new ArrayList<>(Arrays.asList(
@@ -205,7 +214,26 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		comboBox.addActionListener(this);
 		AutoCompleteDecorator.decorate(comboBox);
 		sportColumn.setCellEditor(new ComboBoxCellEditor(comboBox));
-			
+		
+		eventoInfo evento= new eventoInfo() {
+			@Override
+			public void info(int fila) {
+				System.out.println("FILA: " + fila);
+				try{
+					System.out.println("Tipo:" + tablaCampos.getValueAt(fila,1).toString());
+					
+					String seleccion = tablaCampos.getValueAt(fila,1).toString();
+				
+					infoEstructura info = new infoEstructura(nomenclatura, listaNombreEst, seleccion);
+					info.setVisible(true);
+				} catch (NullPointerException e) {
+					System.out.println("# NO se ha seleccionado tipo #");
+				}
+			}
+		};
+		tablaCampos.getColumnModel().getColumn(2).setCellRenderer(new rendererInfo());
+		tablaCampos.getColumnModel().getColumn(2).setCellEditor(new editorInfo(evento));
+		
 		scrollPane.setViewportView(tablaCampos);
 		
 		JPanel panel_3 = new JPanel();

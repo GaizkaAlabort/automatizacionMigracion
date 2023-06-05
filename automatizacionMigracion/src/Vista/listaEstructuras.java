@@ -11,11 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import Modelo.editorAccion;
-import Modelo.celdaAccion;
 import Modelo.estructura;
 import Modelo.variable;
-import Modelo.eventosAccion;
+import Modelo.Accion.celdaAccion;
+import Modelo.Accion.editorAccion;
+import Modelo.Accion.eventosAccion;
 import Modelo.ficheros;
 import Modelo.generador;
 
@@ -205,7 +205,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		return listaEstructuras;
 	}
 	
-	public ArrayList<String> getListaNomEst(String nomenclatura){
+	/*public ArrayList<String> getListaNomEst(String nomenclatura){
 		ArrayList<String> listanombreestado = new ArrayList<String>();
 		
 		for (int i=0; i<listaEstructuras.size(); i++)
@@ -216,7 +216,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
         }
 		
 		return listanombreestado;
-	}
+	}*/
 	
 	public int getListaTam(){
 		return listaEstructuras.size();
