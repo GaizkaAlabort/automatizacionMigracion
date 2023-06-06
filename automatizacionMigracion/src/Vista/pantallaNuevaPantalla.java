@@ -117,6 +117,15 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	        	listaNombreEstructuras.add("PACK_" + nomenclatura + ".PAN_" + estructura.getNombre());
 	        }
 		}
+		ArrayList<String> intermedio = new ArrayList<>(Arrays.asList(
+                "PACK_TRF.RF_PANINFO",
+                "PACK_TRF.RF_LOGIN",
+                "PACK_TRF.RF_ERROR",
+                "PACK_TRF.PAN_COM4"
+                ));
+		try{
+			intermedio.addAll(listaNombreEstructuras);
+		} catch(NullPointerException e) {}
 		
 		if(listaCodPantalla == null) {
 			listaCodigoPantallas = new ArrayList<codigoPantalla>();
@@ -169,7 +178,18 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 			
 			Class[] tipos = new Class[]{java.lang.Object.class,java.lang.Object.class,null,java.lang.Boolean.class,java.lang.Boolean.class};
 			public Class getColumnClass(int column) {
-				return tipos[column];
+				switch(column) {
+					case 0:
+						return java.lang.Object.class;
+				case 1:
+						return java.lang.Object.class;
+				case 3:
+						return java.lang.Boolean.class;
+				case 4:
+						return java.lang.Boolean.class;
+				default:
+						return null;
+				}
 			}
 		};
 		tablaCampos.setModel(modelo);
@@ -184,7 +204,15 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		if (editPantalla != null) {
 			for (int i=0; i< listaCampos.size(); i++) {
 				campos campo = listaCampos.get(i);
-				modelo.addRow(new Object[]{campo.getNombre(),campo.getTipo(),null,campo.getIn(),campo.getOut()});
+				if(intermedio.contains(campo.getTipo())) 
+				{
+					modelo.addRow(new Object[]{campo.getNombre(),campo.getTipo(),null,campo.getIn(),campo.getOut()});
+				}
+				else
+				{
+					modelo.addRow(new Object[]{campo.getNombre(),null,null,campo.getIn(),campo.getOut()});
+				}
+				
 			}
 		}
 		
@@ -195,17 +223,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		tablaCampos.getColumnModel().getColumn(4).setMaxWidth(50);
 		
 		TableColumn sportColumn = tablaCampos.getColumnModel().getColumn(1);
-		ArrayList<String> intermedio = new ArrayList<>(Arrays.asList(
-                "PACK_TRF.RF_PANINFO",
-                "PACK_TRF.RF_LOGIN",
-                "PACK_TRF.RF_ERROR",
-                "PACK_TRF.PAN_COM4"
-                ));
-		try{
-			intermedio.addAll(listaNombreEstructuras);
-		} catch(NullPointerException e) {
-			
-		}
+		
 		String[] comunes = new String[intermedio.size()];
 		comunes = intermedio.toArray(comunes);
 		
@@ -475,9 +493,9 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 						}
 						
 						if(problema.equals("")) {
-							System.out.println("in:" + tablaCampos.getValueAt(i,2).toString());
-							System.out.println("out:" + tablaCampos.getValueAt(i,3).toString());
-							campos nuevoCampo = new campos(tablaCampos.getValueAt(i,0).toString(),tablaCampos.getValueAt(i,1).toString(),new Boolean(tablaCampos.getValueAt(i,2).toString()),new Boolean(tablaCampos.getValueAt(i,3).toString()));
+							System.out.println("in:" + tablaCampos.getValueAt(i,3).toString());
+							System.out.println("out:" + tablaCampos.getValueAt(i,4).toString());
+							campos nuevoCampo = new campos(tablaCampos.getValueAt(i,0).toString(),tablaCampos.getValueAt(i,1).toString(),new Boolean(tablaCampos.getValueAt(i,3).toString()),new Boolean(tablaCampos.getValueAt(i,4).toString()));
 							listaCampos.add(nuevoCampo);
 						}
 					}
@@ -501,7 +519,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		}
 		else if (e.getSource()==btnAnadir) 
 		{
-			modelo.addRow(new Object[]{null,null,false,false});
+			modelo.addRow(new Object[]{null,null,null,false,false});
 		}
 		else if (e.getSource()==btnEliminar)
 		{

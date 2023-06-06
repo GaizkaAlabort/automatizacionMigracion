@@ -45,4 +45,8 @@ public class campos {
 			return "";
 		}
 	}
+	
+	public void actualizarTipo(String ptipo) {
+		tipo = ptipo;
+	}
 }

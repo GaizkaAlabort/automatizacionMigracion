@@ -2,6 +2,9 @@ package Modelo;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class pantalla {
 	
@@ -91,4 +94,26 @@ public class pantalla {
 	public String getDescPant() {
 		return codigoPantalla.getDescPant();
 	}
+	
+	public void actualizarNomenclatura(String nomenclatura) {
+		for(int tam=0;tam<listaCampos.size(); tam++) {
+			campos campo = listaCampos.get(tam);
+			
+			Pattern pattern = Pattern.compile("PACK_([a-zA-Z0-9]+).PAN_([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(campo.getTipo());
+			
+			ArrayList<String> intermedio = new ArrayList<>(Arrays.asList(
+	                "TRF", nomenclatura));
+			
+			//Comprobamos patron para recoger el nombre de la estructura
+			if (matcher.find()) {
+				if (!intermedio.contains(matcher.group(1)))
+				{
+					campo.actualizarTipo("PACK_" + nomenclatura + ".PAN_" + matcher.group(2));
+					listaCampos.set(tam, campo);
+				}
+			}
+		}
+	}
+		
 }
