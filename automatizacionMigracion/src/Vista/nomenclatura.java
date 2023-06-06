@@ -32,7 +32,7 @@ public class nomenclatura extends JFrame{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					nomenclatura frame = new nomenclatura();
+					nomenclatura frame = new nomenclatura("prue",12345);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -44,7 +44,8 @@ public class nomenclatura extends JFrame{
 	/**
 	 * Create the frame.
 	 */
-	public nomenclatura() {
+	public nomenclatura(String nombre, int codpet) {
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 360, 166);
 		contentPane = new JPanel();
@@ -77,6 +78,13 @@ public class nomenclatura extends JFrame{
 		lblInfo2 = new JLabel("pantalla, al escribir PRUE se creara los ficheros como PACK_PRUE");
 		lblInfo2.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		contentPane.add(lblInfo2);
+		
+		if(nombre!=null && codpet!=-1)
+		{
+			nomenclatura.setText(nombre);
+			codigo.setText(String.valueOf(codpet));
+			btnNewButton.setText("CONTINUAR");
+		}
 	}
 
 	public boolean comprobarCampos() {
@@ -91,16 +99,19 @@ public class nomenclatura extends JFrame{
 			try{
 				if(codigo.getText().isEmpty()) {
 					cod = -1;
+					System.out.println("Falta introducir codigo peticion.");
+					JOptionPane.showMessageDialog(null, "Introduzca codigo peticion");
+					return false;
 				} else {
 					cod = Integer.parseInt(codigo.getText());
+					dispose();
+					return true;
 				}
 				//listaEstructuras lista1= new listaEstructuras(nomenclatura.getText(), cod);
 				//Hacemos visible la nueva pantalla
 				//lista1.setVisible(true);
 				
 				//Cerramos la principal
-				dispose();
-				return true;
 			} catch (NumberFormatException exception) {
 				System.out.println("El codigo no es un numero.");
 				return false;

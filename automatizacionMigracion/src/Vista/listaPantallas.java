@@ -4,12 +4,15 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import Modelo.campos;
 import Modelo.codigoPantalla;
 import Modelo.estructura;
 
@@ -22,6 +25,8 @@ import Modelo.pantalla;
 import Modelo.Accion.celdaAccion;
 import Modelo.Accion.editorAccion;
 import Modelo.Accion.eventosAccion;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class listaPantallas extends JFrame implements ActionListener{
 
@@ -36,6 +41,11 @@ public class listaPantallas extends JFrame implements ActionListener{
 	private ArrayList<estructura> listaEstructuras;
 	private ArrayList<codigoPantalla> listaCodigosPantalla;
 	private String nomenclatura;
+	private JPanel panel_generar;
+	private JPanel panel_opciones;
+	public JButton btnEstructura;
+	private JLabel lblNewLabel;
+	private JLabel lblNewLabel_1;
 
 	/**
 	 * Launch the application.
@@ -46,7 +56,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 				try {
 					ArrayList<estructura> listaNombreEst=new ArrayList<estructura>();
 					String nomenclatura = "PRUE";
-					listaPantallas frame = new listaPantallas(nomenclatura,listaNombreEst);
+					listaPantallas frame = new listaPantallas(nomenclatura,listaNombreEst, null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,15 +68,21 @@ public class listaPantallas extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public listaPantallas(String nomenclatura,ArrayList<estructura> listaNombreEst) {
+	public listaPantallas(String nomenclatura,ArrayList<estructura> listaNombreEst, ArrayList<pantalla> listaPant, ArrayList<codigoPantalla> listaCodPant) {
 		System.out.println("***Inicio inicializar listaPantallas***");
 		listaPantallas = new ArrayList<pantalla>();
 		this.nomenclatura=nomenclatura;
-		listaCodigosPantalla = new ArrayList<codigoPantalla>();
+		
 		if(listaNombreEst.size()==0) {
 			listaEstructuras = new ArrayList<estructura>();
 		} else {
 			listaEstructuras = listaNombreEst;
+		}
+		
+		if(listaCodPant == null) {
+			listaCodigosPantalla = new ArrayList<codigoPantalla>();
+		} else {
+			listaCodigosPantalla = listaCodPant;
 		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,13 +97,28 @@ public class listaPantallas extends JFrame implements ActionListener{
 		general.add(panel, BorderLayout.SOUTH);
 		panel.setLayout(new BorderLayout(0, 0));
 		
-		btnGenerar = new JButton("Generar");
-		btnGenerar.addActionListener(this);
-		panel.add(btnGenerar, BorderLayout.EAST);
+		panel_generar = new JPanel();
+		panel.add(panel_generar, BorderLayout.NORTH);
 		
 		btnNuevaPantalla = new JButton("Nueva pantalla");
+		panel_generar.add(btnNuevaPantalla);
 		btnNuevaPantalla.addActionListener(this);
-		panel.add(btnNuevaPantalla, BorderLayout.WEST);
+		
+		panel_opciones = new JPanel();
+		panel.add(panel_opciones, BorderLayout.SOUTH);
+		
+		btnEstructura = new JButton("Estructuras");
+		panel_opciones.add(btnEstructura);
+		
+		lblNewLabel = new JLabel("          ");
+		panel_opciones.add(lblNewLabel);
+		
+		btnGenerar = new JButton("Finalizar");
+		panel_opciones.add(btnGenerar);
+		
+		lblNewLabel_1 = new JLabel("     ");
+		panel_opciones.add(lblNewLabel_1);
+		btnGenerar.addActionListener(this);
 		
 		scrollPane = new JScrollPane();
 		general.add(scrollPane, BorderLayout.CENTER);
@@ -111,6 +142,15 @@ public class listaPantallas extends JFrame implements ActionListener{
 		tablaVariablesPantallas.getColumnModel().getColumn(1).setMaxWidth(50);
 		tablaVariablesPantallas.getColumnModel().getColumn(2).setMaxWidth(70);
 		tablaVariablesPantallas.setRowHeight(35);
+		
+		if(listaPant!=null){
+			listaPantallas=listaPant;
+			actualizarNomenclaturaCampos();
+			for(int tam=0; tam<listaPantallas.size();tam++)
+			{
+				modelo.addRow(new Object[]{listaPantallas.get(tam).getNombre(),listaPantallas.get(tam).getNumPant()});
+			}
+		}
 		
 		eventosAccion eventos= new eventosAccion() {
 
@@ -243,6 +283,12 @@ public class listaPantallas extends JFrame implements ActionListener{
 		}		
 	}
 	
+	private void actualizarNomenclaturaCampos() {
+		for(int tamano=0; tamano<listaPantallas.size();tamano++) {
+			listaPantallas.get(tamano).actualizarNomenclatura(nomenclatura);
+		}
+	}
+	
 	private JFrame getFrame(){
 	    return this;
 	}
@@ -257,5 +303,68 @@ public class listaPantallas extends JFrame implements ActionListener{
 	
 	public ArrayList<codigoPantalla> getListaCodigosPantalla(){
 		return listaCodigosPantalla;
+	}
+	
+	public boolean comprobarGenerar() {
+		if(listaPantallas.size()==0) {
+			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo");
+			System.out.println("ERROR: ListaEstructura vacia");
+			return false;
+		} else{
+			ArrayList<String> listaNombreEstructura = new ArrayList<String>();
+			for(int le=0;le<listaEstructuras.size();le++)
+			{
+				listaNombreEstructura.add(listaEstructuras.get(le).getNombre());
+			}
+			
+			String mensajeError = "Campos de pantallas vacios:\n";
+			for(int lp=0; lp<listaPantallas.size(); lp++) {
+				pantalla pantallaAComprobar = listaPantallas.get(lp);
+				
+				int contCamposVacios =0;
+				String mensajeCampo = "";
+				for(int cp=0; cp<pantallaAComprobar.getCantCampos();cp++)
+				{
+					String campo = pantallaAComprobar.getCampo(cp).getTipo();
+					Pattern pattern = Pattern.compile("PACK_([a-zA-Z0-9]+).PAN_([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE);
+					Matcher matcher = pattern.matcher(campo);
+						
+					//Comprobamos patron para recoger el nombre de la estructura
+					if (matcher.find()) 
+					{
+						if(!listaNombreEstructura.contains(matcher.group(2)))
+						{
+							if(contCamposVacios==0)
+							{
+								mensajeCampo = mensajeCampo + pantallaAComprobar.getCampo(cp).getNombre();
+							}
+							else
+							{
+								mensajeCampo = mensajeCampo +", "+ pantallaAComprobar.getCampo(cp).getNombre();
+							}
+							contCamposVacios++;
+						};
+					}
+				}
+				
+				if(!mensajeCampo.isEmpty())
+				{
+					mensajeError = mensajeError + "  - Pantalla " + pantallaAComprobar.getNombre() + ": " + mensajeCampo + "\n";
+				}
+			}
+			
+			if(mensajeError.equals("Campos de pantallas vacios: \n"))
+			{
+				return true;
+			} 
+			else
+			{
+				JOptionPane.showMessageDialog(null, mensajeError);
+				return false;
+			}
+			
+			
+			//generador gen =new generador(new ficheros(nomenclatura, codigo, listaEstructuras));
+		}
 	}
 }

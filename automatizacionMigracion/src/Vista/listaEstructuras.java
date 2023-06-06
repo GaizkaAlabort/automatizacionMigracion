@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.JTable;
+import javax.swing.JLabel;
 
 public class listaEstructuras extends JFrame implements ActionListener{
 
@@ -35,6 +36,11 @@ public class listaEstructuras extends JFrame implements ActionListener{
 	public JButton btnGenerar;
 	
 	private ArrayList<estructura> listaEstructuras;
+	private JPanel panel_1;
+	private JPanel panel_2;
+	public JButton btnNomenclatura;
+	private JLabel lblNewLabel;
+	private JLabel lblNewLabel_1;
 	/**
 	 * Launch the application.
 	 */
@@ -42,7 +48,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					listaEstructuras frame = new listaEstructuras();
+					listaEstructuras frame = new listaEstructuras(null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -54,7 +60,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public listaEstructuras() {
+	public listaEstructuras(ArrayList<estructura> listaEst) {
 		System.out.println("***Inicio inicializar listaEstructuras***");
 		listaEstructuras = new ArrayList<estructura>();
 		
@@ -83,6 +89,15 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		modelo.addColumn("Accion");
 		
 		tablaVariablesEstructura.setModel(modelo);
+		
+		if(listaEst!=null){
+			listaEstructuras=listaEst;
+			for(int tam=0; tam<listaEstructuras.size();tam++)
+			{
+				modelo.addRow(new Object[]{listaEstructuras.get(tam).getNombre()});
+			}
+		}
+		
 		tablaVariablesEstructura.setRowHeight(35);
 		eventosAccion eventos= new eventosAccion() {
 
@@ -140,13 +155,27 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		contentPane.add(panel, BorderLayout.SOUTH);
 		panel.setLayout(new BorderLayout(0, 0));
 		
-		btnGenerar = new JButton("Generar");
-		//btnGenerar.addActionListener(this);
-		panel.add(btnGenerar, BorderLayout.EAST);
+		panel_1 = new JPanel();
+		panel.add(panel_1, BorderLayout.NORTH);
 		
 		btnNuevaEstructura = new JButton("Nueva estructura");
+		panel_1.add(btnNuevaEstructura);
 		btnNuevaEstructura.addActionListener(this);
-		panel.add(btnNuevaEstructura, BorderLayout.WEST);
+		
+		panel_2 = new JPanel();
+		panel.add(panel_2, BorderLayout.SOUTH);
+		
+		btnNomenclatura = new JButton("Nomenclatura");
+		panel_2.add(btnNomenclatura);
+		
+		lblNewLabel = new JLabel("          ");
+		panel_2.add(lblNewLabel);
+		
+		btnGenerar = new JButton("Pantallas");
+		panel_2.add(btnGenerar);
+		
+		lblNewLabel_1 = new JLabel("      ");
+		panel_2.add(lblNewLabel_1);
 		System.out.println("***Fin inicializar listaEstructuras***");
 	}
 	
