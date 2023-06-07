@@ -1,30 +1,25 @@
 package Vista;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Modelo.estructura;
-import Modelo.variable;
 import Modelo.Accion.celdaAccion;
 import Modelo.Accion.editorAccion;
 import Modelo.Accion.eventosAccion;
-import Modelo.ficheros;
-import Modelo.generador;
-
-import javax.swing.JScrollPane;
-import java.awt.BorderLayout;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import javax.swing.JTable;
-import javax.swing.JLabel;
 
 public class listaEstructuras extends JFrame implements ActionListener{
 

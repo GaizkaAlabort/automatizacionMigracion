@@ -1,5 +1,6 @@
 package Vista;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,26 +8,22 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import Modelo.campos;
 import Modelo.codigoPantalla;
 import Modelo.estructura;
-
-import java.awt.BorderLayout;
-import javax.swing.JButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-
 import Modelo.pantalla;
 import Modelo.Accion.celdaAccion;
 import Modelo.Accion.editorAccion;
 import Modelo.Accion.eventosAccion;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 public class listaPantallas extends JFrame implements ActionListener{
 
@@ -148,7 +145,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 			actualizarNomenclaturaCampos();
 			for(int tam=0; tam<listaPantallas.size();tam++)
 			{
-				modelo.addRow(new Object[]{listaPantallas.get(tam).getNombre(),listaPantallas.get(tam).getNumPant()});
+				modelo.addRow(new Object[]{listaPantallas.get(tam).getNombre(),listaPantallas.get(tam).getCodigoPantalla()});
 			}
 		}
 		
@@ -175,17 +172,18 @@ public class listaPantallas extends JFrame implements ActionListener{
 				                
 				                //Recogemos 
 				                pantalla nuevaPantalla = super.getPantalla();
-				                System.out.println("pantalla. Nombre: " + nuevaPantalla.getNombre() + ", Numero: " + nuevaPantalla.getNumPant());
+				                System.out.println("pantalla. Nombre: " + nuevaPantalla.getNombre() + ", Numero: " + nuevaPantalla.getCodigoPantalla());
 				                modelo.setValueAt(nuevaPantalla.getNombre(), fila, 0);
-				                modelo.setValueAt(nuevaPantalla.getNumPant(), fila, 1);
-				                int numero = listaPantallas.get(fila).getNumPant();
+				                modelo.setValueAt(nuevaPantalla.getCodigoPantalla(), fila, 1);
+				                int numero = listaPantallas.get(fila).getCodigoPantalla();
 				                listaPantallas.set(fila, nuevaPantalla);
 				                System.out.println("Tamaño de la lista de pantallas: " + listaPantallas.size());
-				                if(numero != nuevaPantalla.getNumPant()) {
+				                listaCodigosPantalla = super.getListaCodPant();
+				                if(numero != nuevaPantalla.getCodigoPantalla()) {
 				                	int indice = -1;
 				                	//Comprobar que existe otra pantalla con ese codigo
 					                for(int k=0; k< listaPantallas.size();k++) {
-					                	if(numero==listaPantallas.get(k).getNumPant()) {
+					                	if(numero==listaPantallas.get(k).getCodigoPantalla()) {
 					                		indice=k;
 					                	}
 					                }
@@ -202,6 +200,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 						                }
 					        			
 					        			listaCodigosPantalla.remove(indice);
+					        			listaCodigosPantalla.add(super.getCodPant());
 					        			System.out.println("Borrado "+ numero + " de " + indice);
 					                }
 				                }
@@ -255,23 +254,24 @@ public class listaPantallas extends JFrame implements ActionListener{
 			                
 			                //Recogemos 
 			                pantalla nuevaPantalla = super.getPantalla();
-			                System.out.println("pantalla. Nombre:" + nuevaPantalla.getNombre()+ ", Numero: " + nuevaPantalla.getNumPant());
-			                modelo.addRow(new Object[]{nuevaPantalla.getNombre(),nuevaPantalla.getNumPant()});
+			                System.out.println("pantalla. Nombre:" + nuevaPantalla.getNombre()+ ", Numero: " + nuevaPantalla.getCodigoPantalla());
+			                modelo.addRow(new Object[]{nuevaPantalla.getNombre(),nuevaPantalla.getCodigoPantalla()});
 			                listaPantallas.add(nuevaPantalla);
 			                System.out.println(listaPantallas.size());
 			                
+			                listaCodigosPantalla = super.getListaCodPant();
 			                int indice = -1;	
 			                for(int num=0;num<listaCodigosPantalla.size();num++)
 			                {
-			                	if(nuevaPantalla.getNumPant()==listaCodigosPantalla.get(num).getNumPant()) {
+			                	if(nuevaPantalla.getCodigoPantalla()==listaCodigosPantalla.get(num).getNumPant()) {
 			                		indice=num;
 			                	}
 			                }
 			                
 			        		if (indice != -1) {
-			        			System.out.println("La pantalla "+ nuevaPantalla.getNumPant() + " está en el índice " + indice);
+			        			System.out.println("La pantalla "+ nuevaPantalla.getCodigoPantalla() + " está en el índice " + indice);
 			        		} else {
-			        			listaCodigosPantalla.add(nuevaPantalla.getCodigoPantalla());
+			        			listaCodigosPantalla.add(super.getCodPant());
 			                }
 			            }
 			        };
@@ -362,7 +362,6 @@ public class listaPantallas extends JFrame implements ActionListener{
 				JOptionPane.showMessageDialog(null, mensajeError);
 				return false;
 			}
-			
 			
 			//generador gen =new generador(new ficheros(nomenclatura, codigo, listaEstructuras));
 		}

@@ -4,16 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import Vista.nomenclatura;
-import Vista.pantallaNuevaVariable;
-import Vista.pantallaEstructura;
-import Vista.listaEstructuras;
-import Vista.listaPantallas;
 import Modelo.codigoPantalla;
 import Modelo.estructura;
 import Modelo.ficheros;
 import Modelo.generador;
 import Modelo.pantalla;
+import Vista.listaEstructuras;
+import Vista.listaPantallas;
+import Vista.nomenclatura;
 
 
 public class principal implements ActionListener{

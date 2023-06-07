@@ -1,6 +1,5 @@
 package Modelo;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -12,14 +11,14 @@ public class pantalla {
 	private String nombreCortoPantalla;
 	private ArrayList<campos> listaCampos;
 	private boolean[] listaTeclas = new boolean[13];
-	private codigoPantalla codigoPantalla;
+	private int codigoPantalla;
 	
-	public pantalla(String pNombre, String pCortNom, ArrayList<campos> pListaCampos, boolean[] pListaTeclas, int pNumero, String pDescripcion) {
+	public pantalla(String pNombre, String pCortNom, ArrayList<campos> pListaCampos, boolean[] pListaTeclas, int pNumero) {
 		nombrePantalla = pNombre;
 		nombreCortoPantalla = pCortNom;
 		listaCampos = pListaCampos;
 		listaTeclas = pListaTeclas;
-		codigoPantalla = new codigoPantalla(pNumero, pDescripcion);
+		codigoPantalla = pNumero;
 	}
 	
 	public String getNombre() {
@@ -83,16 +82,8 @@ public class pantalla {
 		}
 	}
 	
-	public codigoPantalla getCodigoPantalla(){
+	public int getCodigoPantalla(){
 		return codigoPantalla;
-	}
-	
-	public int getNumPant() {
-		return codigoPantalla.getNumPant();
-	}
-	
-	public String getDescPant() {
-		return codigoPantalla.getDescPant();
 	}
 	
 	public void actualizarNomenclatura(String nomenclatura) {

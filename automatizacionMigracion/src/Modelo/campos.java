@@ -1,7 +1,5 @@
 package Modelo;
 
-import java.util.ArrayList;
-
 public class campos {
 	private String nombre;
 	private String tipo;
