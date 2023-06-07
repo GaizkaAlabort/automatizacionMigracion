@@ -2,8 +2,6 @@ package Modelo;
 
 import java.util.ArrayList;
 
-import Modelo.variable;
-
 public class estructura {
 	
 	private String nombreEstructura;

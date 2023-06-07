@@ -1,9 +1,6 @@
 package Modelo;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-
-import Modelo.estructura;
 
 public class ficheros {
 	

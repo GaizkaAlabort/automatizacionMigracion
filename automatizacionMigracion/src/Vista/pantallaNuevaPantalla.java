@@ -1,6 +1,9 @@
 package Vista;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -10,43 +13,33 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 
 import Modelo.campos;
 import Modelo.codigoPantalla;
 import Modelo.estructura;
 import Modelo.pantalla;
-import Modelo.variable;
 import Modelo.Info.editorInfo;
 import Modelo.Info.eventoInfo;
 import Modelo.Info.rendererInfo;
-
-import java.awt.BorderLayout;
-
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.JScrollPane;
-import javax.swing.JCheckBox;
-import java.awt.Font;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
-
-import java.awt.Color;
-import java.awt.Dimension;
-
-import javax.swing.JTable;
-
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
-import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 
 public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 
@@ -54,6 +47,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	private JButton btnFin;
 	private JButton btnAnadir;
 	private JButton btnEliminar;
+	private JButton btnInfoCodPant;
 	private JTextField nombre;
 	private JTextField nombreCorto;
 	private JTextField numeroPant;
@@ -70,6 +64,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	private ArrayList<codigoPantalla> listaCodigoPantallas;
 	private int numPant;
 	private String descripcion;
+	private infoCodPant info;
 
 	/**
 	 * Launch the application.
@@ -78,7 +73,11 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					pantallaNuevaPantalla frame = new pantallaNuevaPantalla(null,null, null, null);
+					ArrayList<codigoPantalla> intermedio = new ArrayList<>(Arrays.asList(
+			                new codigoPantalla(1,"prueba"),
+			                new codigoPantalla(2,"nuevo")
+			                ));
+					pantallaNuevaPantalla frame = new pantallaNuevaPantalla("PRUE0",null, null, intermedio);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -97,13 +96,25 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 			nombreCorto = new JTextField();
 			numeroPant = new JTextField();
 			descPant = new JTextField();
+			setTitle("Nueva pantalla");
 		} else {
 			nombre = new JTextField(editPantalla.getNombre());
 			nombreCorto = new JTextField(editPantalla.getNombreCorto());
-			numeroPant = new JTextField(Integer.toString(editPantalla.getNumPant()));
-			descPant = new JTextField(editPantalla.getDescPant());
+			numeroPant = new JTextField(Integer.toString(editPantalla.getCodigoPantalla()));
+			System.out.println(editPantalla.getCodigoPantalla());
+			for(int cp=0; cp<listaCodPantalla.size();cp++)
+			{
+				codigoPantalla codPant = listaCodPantalla.get(cp);
+				System.out.println(editPantalla.getCodigoPantalla()+ "==" +codPant.getNumPant());
+				if(codPant.getNumPant() == editPantalla.getCodigoPantalla())
+				{
+					descPant = new JTextField(codPant.getDescPant());
+				}	
+			}
+			
 			listaCampos = editPantalla.getLista();
 			listaTeclas = editPantalla.getTeclas();
+			setTitle("Editar pantalla: "+ editPantalla.getNombre());
 		}
 		
 		if(listaNombreEst == null) {
@@ -393,24 +404,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 
             @Override
             public void focusLost(FocusEvent e) {
-            	if(!numeroPant.getText().trim().equals("")) {
-            		String descripcionCod="";
-            		int numero = Integer.parseInt(numeroPant.getText());
-            		for(int v=0; v<listaCodigoPantallas.size();v++) {
-            			if(numero == listaCodigoPantallas.get(v).getNumPant()) {
-            				descripcionCod= listaCodigoPantallas.get(v).getDescPant();
-            			}
-            		}
-            		
-            		if(!descripcionCod.equals("")) 
-            		{
-            			descPant.setText(descripcionCod);
-            			descPant.setEditable(false);
-            		} else {
-            			descPant.setText("");
-            			descPant.setEditable(true);
-            		}
-            	}
+            	realizarBusquedaDesc(false);
             }
         });
 		panel_1.add(numeroPant);
@@ -431,6 +425,12 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	         }
 		});
 		panel_1.add(descPant);
+		
+		btnInfoCodPant = new JButton("");
+		btnInfoCodPant.setBounds(455, 5, 17, 17);
+		btnInfoCodPant.setIcon(new ImageIcon(botonesOpciones.class.getResource("/imagenes/interrogante.png")));
+		btnInfoCodPant.addActionListener(this);
+		panel_1.add(btnInfoCodPant);
 		
 		JPanel panel_2 = new JPanel();
 		general.add(panel_2, BorderLayout.SOUTH);
@@ -533,6 +533,18 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 				System.out.println("Cantidad: " + modelo.getRowCount());
 			}
 		}
+		else if (e.getSource()==btnInfoCodPant)
+		{
+			info = new infoCodPant(listaCodigoPantallas);
+			info.btnCerrar.addActionListener((ActionListener) this);
+			info.setVisible(true);
+		}
+		else if(info!=null && e.getSource()==info.btnCerrar)
+		{
+			info.dispose();
+			listaCodigoPantallas = info.nuevaListaCodPant();
+			realizarBusquedaDesc(true);
+		}
 	}
 	
 	private JFrame getFrame(){
@@ -540,6 +552,37 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	}
 	
 	public pantalla getPantalla(){
-	    return new pantalla(nomPant,nomCortoPant,listaCampos,listaTeclas,numPant,descripcion);
+	    return new pantalla(nomPant,nomCortoPant,listaCampos,listaTeclas,numPant);
+	}
+	
+	public codigoPantalla getCodPant() {
+		return new codigoPantalla(numPant,descripcion);
+	}
+	
+	private void realizarBusquedaDesc(boolean info) {
+		if(!numeroPant.getText().trim().equals("")) {
+    		String descripcionCod="";
+    		int numero = Integer.parseInt(numeroPant.getText());
+    		for(int v=0; v<listaCodigoPantallas.size();v++) {
+    			if(numero == listaCodigoPantallas.get(v).getNumPant()) {
+    				descripcionCod= listaCodigoPantallas.get(v).getDescPant();
+    			}
+    		}
+    		
+    		if(!descripcionCod.equals("")) 
+    		{
+    			descPant.setText(descripcionCod);
+    			descPant.setEditable(false);
+    		} else {
+    			if(!info) {  			
+    				descPant.setText("");
+    			}
+    			descPant.setEditable(true);
+    		}
+    	}
+	}
+	
+	public ArrayList<codigoPantalla> getListaCodPant(){
+		return listaCodigoPantallas;
 	}
 }

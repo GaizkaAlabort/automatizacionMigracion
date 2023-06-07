@@ -1,17 +1,15 @@
 package Vista;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Font;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import java.awt.Font;
 
 public class nomenclatura extends JFrame{
 
@@ -46,6 +44,7 @@ public class nomenclatura extends JFrame{
 	 */
 	public nomenclatura(String nombre, int codpet) {
 		
+		setTitle("Nueva Migración");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 360, 166);
 		contentPane = new JPanel();
@@ -82,6 +81,7 @@ public class nomenclatura extends JFrame{
 		if(nombre!=null && codpet!=-1)
 		{
 			nomenclatura.setText(nombre);
+			setTitle("Editar nomenclatura o codigo");
 			codigo.setText(String.valueOf(codpet));
 			btnNewButton.setText("CONTINUAR");
 		}

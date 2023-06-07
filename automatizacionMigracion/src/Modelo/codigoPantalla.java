@@ -1,7 +1,5 @@
 package Modelo;
 
-import java.util.ArrayList;
-
 public class codigoPantalla {
 	private int numeroPantalla;
 	private String descripcionPantalla;
