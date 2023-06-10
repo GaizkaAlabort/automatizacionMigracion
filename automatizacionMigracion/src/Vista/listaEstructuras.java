@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Modelo.estructura;
+import Modelo.tabla;
 import Modelo.Accion.celdaAccion;
 import Modelo.Accion.editorAccion;
 import Modelo.Accion.eventosAccion;
@@ -36,6 +38,11 @@ public class listaEstructuras extends JFrame implements ActionListener{
 	public JButton btnNomenclatura;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
+	private JPanel panel_1_Center;
+	private JPanel panel_1_East;
+	private JButton btnCargarBD;
+	
+	private HashMap<String, tabla> infoTablas;
 	/**
 	 * Launch the application.
 	 */
@@ -59,6 +66,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		System.out.println("***Inicio inicializar listaEstructuras***");
 		listaEstructuras = new ArrayList<estructura>();
 		
+		setTitle("Lista Estructuras");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -105,7 +113,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 				Autor: https://es.stackoverflow.com/users/19623/awes0mem4n
 				Modificado para recogida de datos
 				**/
-				pantallaEstructura minuevaEstructura= new pantallaEstructura(listaEstructuras.get(fila)){
+				pantallaEstructura minuevaEstructura= new pantallaEstructura(listaEstructuras.get(fila),infoTablas){
 				            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
 				            @Override
 				            public void dispose(){
@@ -152,10 +160,21 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		
 		panel_1 = new JPanel();
 		panel.add(panel_1, BorderLayout.NORTH);
+		panel_1.setLayout(new BorderLayout(0, 0));
+		
+		panel_1_Center = new JPanel();
+		panel_1.add(panel_1_Center, BorderLayout.CENTER);
+		
+		panel_1_East = new JPanel();
+		panel_1.add(panel_1_East, BorderLayout.EAST);
 		
 		btnNuevaEstructura = new JButton("Nueva estructura");
-		panel_1.add(btnNuevaEstructura);
 		btnNuevaEstructura.addActionListener(this);
+		panel_1_Center.add(btnNuevaEstructura);
+		
+		btnCargarBD = new JButton("Cargar BD");
+		btnCargarBD.addActionListener(this);
+		panel_1_East.add(btnCargarBD);
 		
 		panel_2 = new JPanel();
 		panel.add(panel_2, BorderLayout.SOUTH);
@@ -184,7 +203,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 			Modificado para recogida de datos
 			**/
 			
-			pantallaEstructura minuevaEstructura= new pantallaEstructura(null){
+			pantallaEstructura minuevaEstructura= new pantallaEstructura(null,infoTablas){
 			            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
 			            @Override
 			            public void dispose(){
@@ -208,6 +227,23 @@ public class listaEstructuras extends JFrame implements ActionListener{
 			//Cerramos la principal
 			getFrame().setVisible(false);
 		}
+		else if(e.getSource()==btnCargarBD) 
+		{
+			menuCargaBD cargarMenu = new menuCargaBD() {
+				@Override
+	            public void dispose(){
+					super.dispose();
+					
+					infoTablas = super.getInfoTablas();
+					if(infoTablas != null) {
+						System.out.println("BD cargada de " + infoTablas.size() + " tablas.");
+					}
+				}
+			};
+			
+			//Hacemos visible la nueva pantalla
+			cargarMenu.setVisible(true);
+		}
 	}
 	
 	private JFrame getFrame(){
@@ -216,7 +252,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 	
 	public boolean comprobarGenerar() {
 		if(listaEstructuras.size()==0) {
-			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo");
+			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			System.out.println("ERROR: ListaEstructura vacia");
 			return false;
 		} else {

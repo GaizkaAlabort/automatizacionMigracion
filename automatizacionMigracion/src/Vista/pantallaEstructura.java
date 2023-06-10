@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,7 +20,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Modelo.estructura;
+import Modelo.tabla;
 import Modelo.variable;
+import Modelo.EditarVariable.editorEditVar;
+import Modelo.EditarVariable.eventoEditVar;
+import Modelo.EditarVariable.rendererEditVar;
 
 public class pantallaEstructura extends JFrame implements ActionListener{
 
@@ -34,6 +39,8 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	private ArrayList<variable> listaVariables;
 	private JPanel panel_1;
 	private String nomEst;
+	
+	private HashMap<String, tabla> infoTablas;
 
 	/**
 	 * Launch the application.
@@ -42,7 +49,7 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					pantallaEstructura frame = new pantallaEstructura(null);
+					pantallaEstructura frame = new pantallaEstructura(null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -54,7 +61,7 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public pantallaEstructura(estructura editEstructura) {
+	public pantallaEstructura(estructura editEstructura, HashMap<String, tabla> infoTablas) {
 		System.out.println("***Inicio inicializar pantallaEstructura***");
 		if (editEstructura == null) {
 			listaVariables = new ArrayList<variable>();
@@ -66,7 +73,9 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 			setTitle("Editar Estructura: " + editEstructura.getNombre());
 		}
 		
-		
+		if(infoTablas != null) {
+			this.infoTablas = infoTablas;
+		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -95,7 +104,7 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 		
 		modelo=new DefaultTableModel(){
 			boolean[] columnEditables = new boolean[] {
-					false, false, false
+					false, false, false, true
 				};
 				public boolean isCellEditable(int row, int column) {
 					return columnEditables[column];
@@ -107,13 +116,54 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 		modelo.addColumn("Nombre");
 		modelo.addColumn("Tipo");
 		modelo.addColumn("Cantidad");
+		modelo.addColumn(" ");
+		
+		tablaVariablesEstructura.getColumnModel().getColumn(3).setMaxWidth(30);
 		
 		if (editEstructura != null) {
 			for (int i=0; i< listaVariables.size(); i++) {
 				variable filaVariable = listaVariables.get(i);
-				modelo.addRow(new Object[]{filaVariable.getNombre(),filaVariable.getTipo(),filaVariable.getCantidad()});
+				modelo.addRow(new Object[]{filaVariable.getNombre(),filaVariable.getTipo(),filaVariable.getCantidad(),null});
 			}
 		}
+		
+		eventoEditVar evento= new eventoEditVar() {
+			@Override
+			public void editar(int fila, JButton btn) {
+				System.out.println("FILA: " + fila);
+				
+				pantallaNuevaVariable editarVariable= new pantallaNuevaVariable(listaVariables.get(fila), infoTablas){
+		            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
+		            @Override
+		            public void dispose(){
+		                //Hacemos visible la pantalla de la estructura
+		                getFrame().setVisible(true);
+		                
+		                //Cerramos la nueva pantalla
+		                super.dispose();
+		                
+		                //Recogemos 
+		                variable nuevaVariable = super.getVariable();
+		                if(nuevaVariable != null) {
+			                System.out.println("pantallaEstructura. Nombre:" + nuevaVariable.getNombre() + ", Cantidad:" + nuevaVariable.getCantidad() +", Tipo:" + nuevaVariable.getTipo() );
+			                modelo.setValueAt(nuevaVariable.getNombre(), fila, 0);
+			                modelo.setValueAt(nuevaVariable.getTipo(), fila, 1);
+			                modelo.setValueAt(nuevaVariable.getCantidad(), fila, 2);
+			                listaVariables.set(fila, nuevaVariable);
+			                System.out.println(listaVariables.size());
+		                }
+		                
+		                btn.setEnabled(true);
+		            }
+		        };
+
+				//Hacemos visible la nueva pantalla
+		        editarVariable.setVisible(true);
+		
+			}
+		};
+		tablaVariablesEstructura.getColumnModel().getColumn(3).setCellRenderer(new rendererEditVar());
+		tablaVariablesEstructura.getColumnModel().getColumn(3).setCellEditor(new editorEditVar(evento));
 		
 		scrollPane.setViewportView(tablaVariablesEstructura);
 		
@@ -151,7 +201,7 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 			Modificado para recogida de datos
 			**/
 			
-			pantallaNuevaVariable minuevaVariable= new pantallaNuevaVariable(){
+			pantallaNuevaVariable minuevaVariable= new pantallaNuevaVariable(null, infoTablas){
 			            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
 			            @Override
 			            public void dispose(){
@@ -163,30 +213,34 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 			                
 			                //Recogemos 
 			                variable nuevaVariable = super.getVariable();
-			                System.out.println("pantallaEstructura. Nombre:" + nuevaVariable.getNombre() + ", Cantidad:" + nuevaVariable.getCantidad() +", Tipo:" + nuevaVariable.getTipo() );
-			                modelo.addRow(new Object[]{nuevaVariable.getNombre(),nuevaVariable.getTipo(),nuevaVariable.getCantidad()});
-			                listaVariables.add(nuevaVariable);
-			                System.out.println(listaVariables.size());
+			                if(nuevaVariable != null) {
+				                System.out.println("pantallaEstructura. Nombre:" + nuevaVariable.getNombre() + ", Cantidad:" + nuevaVariable.getCantidad() +", Tipo:" + nuevaVariable.getTipo() );
+				                modelo.addRow(new Object[]{nuevaVariable.getNombre(),nuevaVariable.getTipo(),nuevaVariable.getCantidad(),null});
+				                listaVariables.add(nuevaVariable);
+				                System.out.println(listaVariables.size());
+			                }
+			                
+			                btnAñadirVariable.setEnabled(true);
 			            }
 			        };
 
 			//Hacemos visible la nueva pantalla
 			minuevaVariable.setVisible(true);
-			//Cerramos la principal
-			getFrame().setVisible(false);
+			
+			btnAñadirVariable.setEnabled(false);
 			
 		}
 		else if (e.getSource()==btnTerminarCrearEstructura) 
 		{	
 			if (nombreEstructura.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "Introduzca nombre a la estructura");
+				JOptionPane.showMessageDialog(null, "Introduzca nombre a la estructura","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				System.out.println("Introduzca nombre a la estructura");
 			}
 			else
 			{
 				if (listaVariables.size() == 0) {
-					JOptionPane.showMessageDialog(null, "Introduzca alguna fila a la lista de variables");
+					JOptionPane.showMessageDialog(null, "Introduzca alguna fila a la lista de variables","Incorrecto", JOptionPane.ERROR_MESSAGE);
 					System.out.println("Lista de variables vacia");
 				} else {
 					nomEst = nombreEstructura.getText();
@@ -209,11 +263,11 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 			{
 				if(tablaVariablesEstructura.getRowCount() == 0)
 				{
-					JOptionPane.showMessageDialog(this, "Tabla vacia");
+					JOptionPane.showMessageDialog(this, "Tabla vacia","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				} 
 				else
 				{
-					JOptionPane.showMessageDialog(this, "Selecciona una fila para borrar");
+					JOptionPane.showMessageDialog(this, "Selecciona una fila para borrar","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				}
 					
 			}
