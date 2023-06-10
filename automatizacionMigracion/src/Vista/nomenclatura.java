@@ -91,7 +91,7 @@ public class nomenclatura extends JFrame{
 		if (nomenclatura.getText().isEmpty())
 		{
 			System.out.println("Falta nombrar al modulo.");
-			JOptionPane.showMessageDialog(null, "Introduzca nomenclatura");
+			JOptionPane.showMessageDialog(null, "Introduzca nomenclatura","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		else
@@ -100,7 +100,7 @@ public class nomenclatura extends JFrame{
 				if(codigo.getText().isEmpty()) {
 					cod = -1;
 					System.out.println("Falta introducir codigo peticion.");
-					JOptionPane.showMessageDialog(null, "Introduzca codigo peticion");
+					JOptionPane.showMessageDialog(null, "Introduzca codigo peticion","Incorrecto", JOptionPane.ERROR_MESSAGE);
 					return false;
 				} else {
 					cod = Integer.parseInt(codigo.getText());

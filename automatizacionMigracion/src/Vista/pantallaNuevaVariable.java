@@ -8,6 +8,9 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -23,6 +26,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+
+import Modelo.columna;
+import Modelo.tabla;
 import Modelo.variable;
 
 public class pantallaNuevaVariable extends JFrame implements ActionListener{
@@ -38,6 +45,8 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	private int cantidadVar;
 	
 	private JTextField tabla;
+	private JComboBox tabla_combo;
+	private JComboBox columna_combo;
 	private String nombreTabla;
 	private JTextField columna;
 	private String nombreColumna;
@@ -53,6 +62,8 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	private String tablaVar;
 	private String columnaVar;
 	private String tipoPersVar;
+	private HashMap<String, tabla> infoTablas;
+	private String anterior="";
 	
 	//VARRAY
 	private ArrayList<variable> listaVariables = new ArrayList<variable>();
@@ -67,7 +78,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					pantallaNuevaVariable frame = new pantallaNuevaVariable();
+					pantallaNuevaVariable frame = new pantallaNuevaVariable(null, null);//{"Seleccionar", "VARCHAR2", "NUMBER", "DATE", "VARRAY", "Personalizado"}
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -79,9 +90,14 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public pantallaNuevaVariable() {
+	public pantallaNuevaVariable(variable editVariable, HashMap<String, tabla> infoTablas) {
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		if(infoTablas !=null) {
+			this.infoTablas = infoTablas;
+		}
+		
+		setTitle("Nueva Variable");
+		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 271, 296);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -116,7 +132,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		
 		tipo = new JComboBox();
 		tipo.setModel(new DefaultComboBoxModel(new String[] {"Seleccionar", "VARCHAR2", "NUMBER", "DATE", "VARRAY", "Personalizado"}));
-		tipo.setBounds(49, 40, 92, 20);
+		tipo.setBounds(49, 40, 111, 20);
 		
 		btnFinNuevaVariable = new JButton("Aceptar");
 		btnFinNuevaVariable.setBounds(156, 223, 89, 23);
@@ -160,6 +176,36 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		tabla.setColumns(10);
 		tabla.setVisible(false);
 		
+		tabla_combo = new JComboBox();
+		tabla_combo.setBounds(50, 25, 125, 18);
+		tabla_combo.setEditable(true);
+		tabla_combo.setVisible(false);
+		tabla_combo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(tabla_combo.getSelectedItem()!= null && tabla_combo.getSelectedItem().toString()!=anterior) {
+					tabla tabla = infoTablas.get(tabla_combo.getSelectedItem().toString());
+					if (tabla != null) {
+						HashMap<String, columna> columnasHash = tabla.obtenerHashColumnas();
+						ArrayList<String> columnas = new ArrayList<String>();
+						for (Map.Entry<String, columna> entry : columnasHash.entrySet()) {
+							String rowKey = entry.getKey();
+							columnas.add(rowKey);
+						}
+										
+						Collections.sort(columnas);
+						String[] columnasList = new String[columnas.size()];
+						columnasList = columnas.toArray(columnasList);
+						
+						columna_combo.setModel(new DefaultComboBoxModel<>(columnasList));
+						columna_combo.setSelectedItem(null);
+					}
+					anterior = tabla_combo.getSelectedItem().toString();
+				}
+			}
+		});
+		AutoCompleteDecorator.decorate(tabla_combo);
+		panelPersonalizado.add(tabla_combo);
+		
 		columna = new JTextField();
 		columna.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		columna.setColumns(10);
@@ -167,9 +213,35 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		panelPersonalizado.add(columna);
 		columna.setVisible(false);
 		
+		columna_combo = new JComboBox();
+		columna_combo.setBounds(68, 48, 125, 18);
+		columna_combo.setEditable(true);
+		columna_combo.setVisible(false);
+		columna_combo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (columna_combo.getSelectedItem()!= null && anterior != null) {
+					tabla tabla = infoTablas.get(tabla_combo.getSelectedItem().toString());
+					if (tabla != null) {
+						columna columna = tabla.recogerColumna(columna_combo.getSelectedItem().toString());
+						if(columna != null) {
+							tipo_pers.setSelectedItem(columna.getTipo());
+							cantidad.setText(String.valueOf(columna.getCant()));
+						}
+					}
+				}
+				else
+				{
+					tipo_pers.setSelectedItem("Seleccionar");
+					cantidad.setText(null);
+				}
+			}
+		});
+		AutoCompleteDecorator.decorate(columna_combo);
+		panelPersonalizado.add(columna_combo);
+		
 		tipo_pers = new JComboBox();
 		tipo_pers.setModel(new DefaultComboBoxModel(new String[] {"Seleccionar", "VARCHAR2", "NUMBER", "DATE"}));		
-		tipo_pers.setBounds(42, 72, 80, 20);
+		tipo_pers.setBounds(42, 72, 95, 20);
 		tipo_pers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent f) {
 				if(tipo_pers.getSelectedItem()== "DATE") {
@@ -255,8 +327,26 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 					lblTablaPers.setVisible(true);
 					lblColumnaPers.setVisible(true);
 					lblTipoPers.setVisible(true);
-					tabla.setVisible(true);
-					columna.setVisible(true);
+					if(infoTablas != null) {
+						ArrayList<String> tablas = new ArrayList<String>();
+						for (Map.Entry<String, tabla> entry : infoTablas.entrySet()) {
+				            String rowKey = entry.getKey();
+				            tablas.add(rowKey);
+				        }
+						
+						Collections.sort(tablas);
+						String[] tablasList = new String[tablas.size()];
+						tablasList = tablas.toArray(tablasList);
+						
+						tabla_combo.setModel(new DefaultComboBoxModel<>(tablasList));
+						tabla_combo.setVisible(true);
+						columna_combo.setVisible(true);
+						
+					} else {
+						tabla.setVisible(true);
+						columna.setEditable(true);
+						columna.setVisible(true);
+					}
 					tipo_pers.setVisible(true);
 				} else {
 					lblTablaPers.setVisible(false);
@@ -265,6 +355,8 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 					tabla.setVisible(false);
 					columna.setVisible(false);
 					tipo_pers.setVisible(false);
+					tabla_combo.setVisible(false);
+					columna_combo.setVisible(false);
 				}
 				
 				if(tipo.getSelectedItem()== "VARRAY") {
@@ -286,6 +378,41 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		});
 		contentPane.add(tipo);
 		
+		if (editVariable != null) {
+			setTitle("Editar Variable: " + editVariable.getNombre());
+			
+			nombre.setText(editVariable.getNombre());
+			if(editVariable.getOpcion() == "basico") {
+				tipo.setSelectedItem(editVariable.getTipo());	
+				
+				if(editVariable.getTipo() != "DATE") {
+					cantidad.setText(String.valueOf(editVariable.getCantidad()));
+				}
+			} else if(editVariable.getOpcion() == "pers") {
+				tipo.setSelectedItem("Personalizado");
+				
+				tabla.setText(editVariable.getTabla());
+				columna.setText(editVariable.getColumna());
+				tipo_pers.setSelectedItem(editVariable.getTipoPers());
+				if(editVariable.getTipoPers() != "DATE") {
+					cantidad.setText(String.valueOf(editVariable.getCantidad()));
+				}
+			} else if(editVariable.getOpcion() == "varray") {
+				tipo.setSelectedItem("VARRAY");
+				
+				nombreVarray.setText(editVariable.getNombreEstructura());
+				
+				if(editVariable.getCantVariables() > 0) {
+					for(int var=0; var< editVariable.getCantVariables(); var++) {
+						variable varPaso = editVariable.getVariable(var);
+						
+						modelo.addRow(new Object[]{varPaso.getNombre(),varPaso.getTipo(),varPaso.getCantidad()});
+		                listaVariables.add(varPaso);
+					}
+				}
+			}
+		}
+		
 	}
 
 	@Override
@@ -295,30 +422,42 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			if (nombre.getText().isEmpty() || tipo.getSelectedItem()=="Seleccionar")
 			{
 				System.out.println("Introduzca nombre y seleccione tipo." + tipo.getSelectedItem());
+				JOptionPane.showMessageDialog(this, "Introduzca nombre y seleccione tipo.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			} 
 			else if(tipo.getSelectedItem()== "VARCHAR2" && cantidad.getText().isEmpty()) 
 			{
 				System.out.println("Los datos varchar necesitan cantidad.");
+				JOptionPane.showMessageDialog(this, "Los datos varchar necesitan cantidad.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
 			else if(tipo.getSelectedItem()== "DATE" && !cantidad.getText().isEmpty()) 
 			{
 				System.out.println("Las fechas no tienen cantidad.");
+				JOptionPane.showMessageDialog(this, "Las fechas no tienen cantidad.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
 			else if(tipo.getSelectedItem()== "VARRAY" && listaVariables.size()<1) 
 			{
 				System.out.println("Al ser varray, necesita variables en la lista.");
+				JOptionPane.showMessageDialog(this, "Al ser varray, necesita variables en la lista.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "Personalizado" && (tabla.getText().isEmpty() || columna.getText().isEmpty() || tipo_pers.getSelectedItem() =="Seleccionar"))
+			else if(tipo.getSelectedItem()== "Personalizado" && infoTablas == null && (tabla.getText().isEmpty() || columna.getText().isEmpty() || tipo_pers.getSelectedItem() =="Seleccionar"))
 			{
 				System.out.println("Al ser personalizado, necesita tabla, columna y tipo.");
+				JOptionPane.showMessageDialog(this, "Al ser personalizado, necesita tabla, columna y tipo.","Incorrecto", JOptionPane.ERROR_MESSAGE);
+			}
+			else if(tipo.getSelectedItem()== "Personalizado" && infoTablas != null && (tabla_combo.getSelectedItem().toString() == null|| columna_combo.getSelectedItem().toString() == null || tipo_pers.getSelectedItem() == "Seleccionar"))
+			{
+				System.out.println("Al ser personalizado, necesita tabla, columna y tipo.");
+				JOptionPane.showMessageDialog(this, "Al ser personalizado, necesita tabla, columna y tipo.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
 			else if(tipo.getSelectedItem()== "Personalizado" && tipo_pers.getSelectedItem() =="VARCHAR2" && cantidad.getText().isEmpty())
 			{
 				System.out.println("Los datos varchar necesitan cantidad.");
+				JOptionPane.showMessageDialog(this, "Los datos varchar necesitan cantidad.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
 			else if(tipo.getSelectedItem()== "VARRAY" && nombreVarray.getText().isEmpty()) 
 			{
 				System.out.println("La estructura varray debe tener un nombre, para poder reutilizar estructura.");
+				JOptionPane.showMessageDialog(this, "La estructura varray debe tener un nombre, para poder reutilizar estructura.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
 			else
 			{
@@ -327,8 +466,14 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 				tipoVar = String.valueOf(tipo.getSelectedItem());
 				
 				if(tipoVar == "Personalizado") {
-					tablaVar = tabla.getText();
-					columnaVar = columna.getText();
+					if(infoTablas != null) {
+						tablaVar = tabla_combo.getSelectedItem().toString();
+						columnaVar = columna_combo.getSelectedItem().toString();
+					} else {
+						tablaVar = tabla.getText();
+						columnaVar = columna.getText();
+					}
+					
 					tipoPersVar = String.valueOf(tipo_pers.getSelectedItem());
 				}
 				
@@ -351,6 +496,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 					dispose();
 				} catch (NumberFormatException exception) {
 					System.out.println("La cantidad no es un numero.");
+					JOptionPane.showMessageDialog(this, "La cantidad debe ser un numero.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		} 
@@ -366,11 +512,11 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			{
 				if(tablaVariables.getRowCount() == 0)
 				{
-					JOptionPane.showMessageDialog(this, "Tabla vacia");
+					JOptionPane.showMessageDialog(this, "Tabla vacia","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				} 
 				else
 				{
-					JOptionPane.showMessageDialog(this, "Selecciona una fila para borrar");
+					JOptionPane.showMessageDialog(this, "Selecciona una fila para borrar","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				}
 					
 			}
@@ -383,7 +529,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			Modificado para recogida de datos
 			**/
 			
-			pantallaNuevaVariable minuevaVariable= new pantallaNuevaVariable(){
+			pantallaNuevaVariable minuevaVariable= new pantallaNuevaVariable(null, infoTablas){
 			            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
 			            @Override
 			            public void dispose(){
@@ -415,16 +561,20 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	}
 	
 	public variable getVariable() {
-		if(tipoVar == "Personalizado") {
-			System.out.println("PERS");
-			return new variable(nombreVar,tipoVar,cantidadVar,
-								tablaVar,columnaVar,tipoPersVar);
-		} else if(tipoVar == "VARRAY") {
-			System.out.println("ARRAY");
-			return new variable(nombreVar,tipoVar,listaVariables,nombreEst);
+		if(nombreVar!= null) {
+			if(tipoVar == "Personalizado") {
+				System.out.println("PERS");
+				return new variable(nombreVar,tipoVar,cantidadVar,
+									tablaVar,columnaVar,tipoPersVar);
+			} else if(tipoVar == "VARRAY") {
+				System.out.println("ARRAY");
+				return new variable(nombreVar,tipoVar,listaVariables,nombreEst);
+			} else {
+				System.out.println("EXTRA");
+				return new variable(nombreVar,tipoVar,cantidadVar);
+			}
 		} else {
-			System.out.println("EXTRA");
-			return new variable(nombreVar,tipoVar,cantidadVar);
+			return null;
 		}
 	}
 }

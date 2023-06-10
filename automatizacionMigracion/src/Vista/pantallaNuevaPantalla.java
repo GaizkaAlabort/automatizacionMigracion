@@ -2,6 +2,7 @@ package Vista;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -157,7 +158,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblNewLabel = new JLabel("Nombre de la pantalla:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		panel.add(lblNewLabel, BorderLayout.NORTH);
 		
@@ -267,14 +268,38 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		
 		JPanel panel_3 = new JPanel();
 		panel_campos.add(panel_3, BorderLayout.SOUTH);
+		panel_3.setPreferredSize(new Dimension(524, 25));
 		
 		btnAnadir = new JButton("A\u00F1adir");
+		btnAnadir.setBounds(185, 1, 71, 23);
 		btnAnadir.addActionListener(this);
+		panel_3.setLayout(null);
 		panel_3.add(btnAnadir);
 		
 		btnEliminar = new JButton("Eliminar");
+		btnEliminar.setBounds(260, 1, 80, 23);
 		btnEliminar.addActionListener(this);
 		panel_3.add(btnEliminar);
+		
+		JButton btnAutoRelleno = new JButton("");
+		btnAutoRelleno.setForeground(new Color(192, 192, 192));
+		btnAutoRelleno.setIcon(new ImageIcon(pantallaNuevaPantalla.class.getResource("/imagenes/autorelleno.png")));
+		btnAutoRelleno.setBounds(5, 3, 20, 20);
+		btnAutoRelleno.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				modelo.addRow(new Object[]{"P_PANORI",intermedio.get(0),null,false,false});
+				modelo.addRow(new Object[]{"P_OPERAR",intermedio.get(1),null,false,false});
+				modelo.addRow(new Object[]{"P_CAMCOM4",intermedio.get(3),null,true,true});
+				modelo.addRow(new Object[]{"P_PANDES",intermedio.get(2),null,true,true});
+				modelo.addRow(new Object[]{"P_ERROR",intermedio.get(0),null,true,true});
+				btnAutoRelleno.setEnabled(false);
+			}
+		});
+		panel_3.add(btnAutoRelleno);
+		
+		if (editPantalla != null) {
+			btnAutoRelleno.setEnabled(false);
+		}
 		//PANEL DE CAMPOS -- FIN
 		
 		//PANEL DE TECLAS -- INICIO
@@ -360,12 +385,12 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	        	 int l = nombreCorto.getText().length();
 	        	 if (ke.getKeyChar() == ' '){
 	        		 nombreCorto.setEditable(false);
-	        		 JOptionPane.showMessageDialog(null, "No se admiten espacios");
+	        		 JOptionPane.showMessageDialog(null, "No se admiten espacios","Incorrecto", JOptionPane.ERROR_MESSAGE);
 		         } else if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE || ke.getKeyCode() == KeyEvent.VK_DELETE){
 		        	 nombreCorto.setEditable(true);
 		         } else if (l>=10) {
 		        	 nombreCorto.setEditable(false);
-	        		 JOptionPane.showMessageDialog(null, "Limitado a 10 letras/numeros");
+	        		 JOptionPane.showMessageDialog(null, "Limitado a 10 letras/numeros","Incorrecto", JOptionPane.ERROR_MESSAGE);
 		         }
 	         }
 		});
@@ -388,10 +413,10 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	            	numeroPant.setEditable(true);
 	             } else if(l>=3){
 	            	numeroPant.setEditable(false);
-		            JOptionPane.showMessageDialog(null, "Solo se puede añadir numero de 3 digitos");
+		            JOptionPane.showMessageDialog(null, "Solo se puede añadir numero de 3 digitos","Incorrecto", JOptionPane.ERROR_MESSAGE);
 	             } else {
 	            	numeroPant.setEditable(false);
-	            	JOptionPane.showMessageDialog(null, "Introduzca solo numeros (0-9)");
+	            	JOptionPane.showMessageDialog(null, "Introduzca solo numeros (0-9)","Incorrecto", JOptionPane.ERROR_MESSAGE);
 	             }
 	         }
 	    });
@@ -420,7 +445,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		        	 descPant.setEditable(true);
 		         } else if (l>=40) {
 		        	 descPant.setEditable(false);
-	        		 JOptionPane.showMessageDialog(null, "Limitado a 40 letras/numeros");
+	        		 JOptionPane.showMessageDialog(null, "Limitado a 40 letras/numeros","Incorrecto", JOptionPane.ERROR_MESSAGE);
 		         }
 	         }
 		});
@@ -446,27 +471,27 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		{
 			if (nombre.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "Introduzca nombre a la pantalla");
+				JOptionPane.showMessageDialog(null, "Introduzca nombre a la pantalla","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				System.out.println("Introduzca nombre a la pantalla");
 			}
 			else if (nombreCorto.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "Introduzca nombre corto a la pantalla, maximo 9 caracteres");
+				JOptionPane.showMessageDialog(null, "Introduzca nombre corto a la pantalla, maximo 9 caracteres","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				System.out.println("Introduzca nombre corto a la pantalla, maximo 9 caracteres");
 			}
 			else if(numeroPant.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "Introduzca numero a la pantalla");
+				JOptionPane.showMessageDialog(null, "Introduzca numero a la pantalla","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				System.out.println("Introduzca numero a la pantalla");
 			}
 			else if(descPant.getText().isEmpty())
 			{
-				JOptionPane.showMessageDialog(null, "Introduzca descripción a la pantalla");
+				JOptionPane.showMessageDialog(null, "Introduzca descripción a la pantalla","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				System.out.println("Introduzca descripción a la pantalla");
 			}
 			else if (tablaCampos.getRowCount()<= 0)
 			{
-				JOptionPane.showMessageDialog(null, "La pantalla necesita campos");
+				JOptionPane.showMessageDialog(null, "La pantalla necesita campos","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				System.out.println("La pantalla necesita campos");
 			}
 			else
@@ -512,7 +537,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 					System.out.println("            Codigo: " + numPant + ", descripcion: " + descripcion);
 					dispose();
 				} else {
-					JOptionPane.showMessageDialog(null, problema);
+					JOptionPane.showMessageDialog(null, problema,"Incorrecto", JOptionPane.ERROR_MESSAGE);
 					System.out.println(problema);
 				}
 			}

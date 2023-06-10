@@ -82,6 +82,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 			listaCodigosPantalla = listaCodPant;
 		}
 		
+		setTitle("Lista Pantallas");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		general = new JPanel();
@@ -307,7 +308,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 	
 	public boolean comprobarGenerar() {
 		if(listaPantallas.size()==0) {
-			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo");
+			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			System.out.println("ERROR: ListaEstructura vacia");
 			return false;
 		} else{
@@ -332,7 +333,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 					//Comprobamos patron para recoger el nombre de la estructura
 					if (matcher.find()) 
 					{
-						if(!listaNombreEstructura.contains(matcher.group(2)))
+						if(!listaNombreEstructura.contains(matcher.group(2)) && (matcher.group(1) != "TRF"))
 						{
 							if(contCamposVacios==0)
 							{
@@ -353,13 +354,13 @@ public class listaPantallas extends JFrame implements ActionListener{
 				}
 			}
 			
-			if(mensajeError.equals("Campos de pantallas vacios: \n"))
+			if(mensajeError.equals("Campos de pantallas vacios:\n"))
 			{
 				return true;
 			} 
 			else
 			{
-				JOptionPane.showMessageDialog(null, mensajeError);
+				JOptionPane.showMessageDialog(null, mensajeError,"Incorrecto", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 			
