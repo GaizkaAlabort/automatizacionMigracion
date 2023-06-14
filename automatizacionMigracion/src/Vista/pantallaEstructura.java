@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -41,6 +44,8 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	private String nomEst;
 	
 	private HashMap<String, tabla> infoTablas;
+	
+	public boolean forzado = false;
 
 	/**
 	 * Launch the application.
@@ -77,7 +82,26 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 			this.infoTablas = infoTablas;
 		}
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+	        @Override
+	        public void windowClosing(WindowEvent e) {
+	        	// Ask for confirmation before terminating the program.
+	        	int seleccion = JOptionPane.showOptionDialog( null,"¿Desea abandonar el programa?",
+	        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
+	        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
+	        			new Object[] { "Cancelar", "Atras", "Salir"},"opcion 1");
+	        			     
+	        	if (seleccion != -1){
+	        		if(seleccion+1==3) {
+	        			System.exit(0);
+	        		} else if(seleccion+1==2) {
+	        			forzado = true;
+	        			dispose();
+	        		}
+	        	}
+	        }
+		});
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
