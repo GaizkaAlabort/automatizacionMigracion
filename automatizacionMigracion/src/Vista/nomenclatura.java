@@ -114,13 +114,19 @@ public class nomenclatura extends JFrame{
 				//Cerramos la principal
 			} catch (NumberFormatException exception) {
 				System.out.println("El codigo no es un numero.");
+				JOptionPane.showMessageDialog(null, "Introduzca codigo peticion valido, exclusivamente numero","Incorrecto", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}			
 		}
 	}
 	
 	public String getNomenclatura() {
-		return nomenclatura.getText();
+		if(nomenclatura.getText().substring(0, 3).matches("[tT][rR][fF]"))
+        {
+        	return  nomenclatura.getText().replaceFirst(nomenclatura.getText().substring(0, 3), "").toUpperCase();
+        } else {
+        	return nomenclatura.getText().toUpperCase();
+        }
 	}
 	
 	public int getCodPeticion() {

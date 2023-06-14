@@ -5,6 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class generador {
 	
@@ -18,9 +23,13 @@ public class generador {
 	private int cantPantallas;
 	private int cantCodPantallas;
 	
-	public generador(ficheros pficheros) {
+	private String ubicacionZip;
+	
+	public generador(ficheros pficheros, String ubicacion) {
 		System.out.println("******INICIO DEL GENERADOR DE FICHEROS******");
 		infoEstructura = pficheros;
+		ubicacionZip = ubicacion;
+		System.out.println("-+Descargando en " + ubicacionZip + "+-");
 		
 		nomenclatura = infoEstructura.getNombre();
         codigoPet = infoEstructura.getCodigo();
@@ -37,6 +46,7 @@ public class generador {
         else
         {
         	nomenclatura = "TRF"+nomenclatura.toUpperCase();
+        	modulo =  modulo.replaceAll("[^a-zA-Z]", "");
         }
         System.out.println("MODULO: " + modulo + " de la NOMENCLATURA: "+ nomenclatura);
         
@@ -49,7 +59,10 @@ public class generador {
 			paqueteCON();
 			paqueteWS();
 			controller();
-			//instr();
+			instr();
+			guia();
+			
+			generarZip();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("ERROR AL GENERAR EL PRIMER PACK");
@@ -782,13 +795,10 @@ public class generador {
 	    				break;
 	    			default:
 	    				String tipo = campo.getTipo();
-	    				System.out.println(tipo.indexOf(".",4));
 	    				int punto = tipo.indexOf(".",4);
 	    				String estructura = tipo.substring(punto+1,tipo.length());
-	    				System.out.println(estructura);
 	    				String paquete = tipo.substring(0,punto-1);
-	    				System.out.println(paquete);
-	    				apartado = paquete +".G_CAM"+estructura;
+	    				apartado = paquete +".G_CAM"+estructura.replace("PAN_","");
 	    				break;
 	    		}
         		if(c<pantalla.getCantCampos()-1) {
@@ -853,13 +863,10 @@ public class generador {
         				break;
         			default:
         				String tipo = campo.getTipo();
-        				System.out.println(tipo.indexOf(".",4));
         				int punto = tipo.indexOf(".",4);
         				String estructura = tipo.substring(punto+1,tipo.length());
-        				System.out.println(estructura);
         				String paquete = tipo.substring(0,punto-1);
-        				System.out.println(paquete);
-        				apartado = apartado +"  "+ paquete +".SEL_CAM"+estructura+"(json);\r\n";
+        				apartado = apartado +"  "+ paquete +".SEL_CAM"+estructura.replace("PAN_","")+"(json);\r\n";
         				break;
         		}
         		bw_bdy.write(apartado);
@@ -905,13 +912,10 @@ public class generador {
         				break;
         			default:
         				String tipo = campo.getTipo();
-        				System.out.println(tipo.indexOf(".",4));
         				int punto = tipo.indexOf(".",4);
         				String estructura = tipo.substring(punto+1,tipo.length());
-        				System.out.println(estructura);
         				String paquete = tipo.substring(0,punto-1);
-        				System.out.println(paquete);
-        				apartado = apartado +"  "+ paquete +".UPD_CAM"+estructura+"(json);\r\n";
+        				apartado = apartado +"  "+ paquete +".UPD_CAM"+estructura.replace("PAN_","")+"(json);\r\n";
         				break;
         		}
         		bw_bdy.write(apartado);
@@ -955,13 +959,10 @@ public class generador {
         				break;
         			default:
         				String tipo = campo.getTipo();
-        				System.out.println(tipo.indexOf(".",4));
         				int punto = tipo.indexOf(".",4);
         				String estructura = tipo.substring(punto+1,tipo.length());
-        				System.out.println(estructura);
         				String paquete = tipo.substring(0,punto-1);
-        				System.out.println(paquete);
-        				apartado = apartado +"  "+ paquete +".LOG_CAM"+estructura+"(json);\r\n";
+        				apartado = apartado +"  "+ paquete +".LOG_CAM"+estructura.replace("PAN_","")+"(json);\r\n";
         				break;
         		}
         		bw_bdy.write(apartado);
@@ -1075,13 +1076,10 @@ public class generador {
 	    				break;
 	    			default:
 	    				String tipo = campo.getTipo();
-	    				System.out.println(tipo.indexOf(".",4));
 	    				int punto = tipo.indexOf(".",4);
 	    				String estructura = tipo.substring(punto+1,tipo.length());
-	    				System.out.println(estructura);
 	    				String paquete = tipo.substring(0,punto-1);
-	    				System.out.println(paquete);
-	    				apartado = paquete +".G_CAM"+estructura;
+	    				apartado = paquete +".G_CAM"+estructura.replace("PAN_","");
 	    				break;
 	    		}
         		if(c<pantalla.getCantCampos()-1) {
@@ -1157,7 +1155,7 @@ public class generador {
 	    	String nombrePantalla = infoEstructura.getPantalla(i).getNombre();
 	    	
 	    	bw_ctr.write("    \r\n"
-	    				+"    @RequestMapping(value = \"/"+nomenclatura.toLowerCase()+"/"+nombrePantalla+"\", method = RequestMethod.PUT, produces = \"application/json\")\r\n"
+	    				+"    @RequestMapping(value = \"/"+nomenclatura.toLowerCase()+"/"+nombrePantalla.toLowerCase()+"\", method = RequestMethod.PUT, produces = \"application/json\")\r\n"
 	    				+"    public String "+nombrePantalla+"(@RequestBody(required = false) String json) {\r\n"	
 	    				+"        String nomprc = \""+nombrePantalla +"_WS\";\r\n"
 	    				+"		  json =(String) dbDao.executeSP(PACKAGE, nomprc, json);\r\n"
@@ -1227,7 +1225,7 @@ public class generador {
         {
 	    	codigoPantalla codPantalla = infoEstructura.getCodigosPantalla(i);
 	    	
-	    	bw_sga.write("INSERT INTO RF_PANTALLAS(RFP_MODULO,RFP_CODIGO,RFP_DENOMI) VALUES('"+nomenclatura.toUpperCase()+"','ENT"+codPantalla.getNumPant()+"','"+codPantalla.getDescPant()+"');\r\n");
+	    	bw_sga.write("INSERT INTO RF_PANTALLAS(RFP_MODULO,RFP_CODIGO,RFP_DENOMI) VALUES('"+nomenclatura.toUpperCase()+"','"+ modulo + codPantalla.getNumPant()+"','"+codPantalla.getDescPant()+"');\r\n");
         }
         bw_sga.write("\r\n");
         
@@ -1372,7 +1370,11 @@ public class generador {
         
         BufferedWriter bw_gi = new BufferedWriter(fw_gi);
         
-        bw_gi.write("-- "+codigoPet+". Migración del módulo " + modulo+" ("+nomenclatura.toUpperCase()+")\r\n"
+        bw_gi.write("--- \r\n"
+        		+"-- Id: "+ nombreArchivo +".txt \r\n"
+        		+"-- Guia de instalacion \r\n"
+        		+"--\r\n"
+        		+"-- "+codigoPet+". Migración del módulo " + modulo+" ("+nomenclatura.toUpperCase()+")\r\n"
         		+ "---\r\n"
         		+ "  \r\n"
         		+ "1- Base de Datos:\r\n"
@@ -1386,9 +1388,9 @@ public class generador {
         		+ "-fnc:                 -\r\n"
         		+ "-prc:                 -\r\n"
         		+ "-spc:                 SGA\r\n"
-        		+ "							pack_"+nomenclatura.toLowerCase()+".scp\r\n"
-        		+ "							pack_"+nomenclatura.toLowerCase()+"_con.scp\r\n"
-        		+ "							pack_"+nomenclatura.toLowerCase()+"_ws.scp\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+".spc\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+"_con.spc\r\n"
+        		+ "							pack_"+nomenclatura.toLowerCase()+"_ws.spc\r\n"
         		+ "-bdy:                 SGA\r\n"
         		+ "							pack_"+nomenclatura.toLowerCase()+".bdy\r\n"
         		+ "							pack_"+nomenclatura.toLowerCase()+"_con.bdy\r\n"
@@ -1418,5 +1420,52 @@ public class generador {
         		+ "--fin");
         
         bw_gi.close();
+	}
+	
+	/**Basada en una pagina 
+	 * Create zip file from multiple files with ZipOutputStream: https://examples.javacodegeeks.com/java-development/core-java/util/zip/create-zip-file-from-multiple-files-with-zipoutputstream/
+	 * Modificado para los archivos generados
+	**/
+	private void generarZip() {
+		try {
+			byte[] buffer = new byte[1024];
+ 
+			FileOutputStream fos;
+			
+			fos = new FileOutputStream( ubicacionZip + "\\" + nomenclatura + ".zip");
+			
+			ZipOutputStream zos = new ZipOutputStream(fos);
+			
+			File[] files = new File("archivosTemp").listFiles();
+			//Recorrer archivos de "archivosTemp"
+			for (int i=0; i < files.length; i++) {
+			    FileInputStream fis = new FileInputStream(files[i]);
+	 
+			    //Crear nueva entrada del zip con cada archivo
+			    zos.putNextEntry(new ZipEntry(files[i].getName()));
+			     
+			    int length;
+	 
+			    while ((length = fis.read(buffer)) > 0) {
+			        zos.write(buffer, 0, length);
+			    }
+	 
+			    zos.closeEntry();
+	 
+			    // cerrar archivo
+			    fis.close();
+		    } 
+			
+			// close the ZipOutputStream
+            zos.close();
+            
+            // borrar todos los archivos generados
+            for(File file : files) {
+            	file.delete();
+            }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

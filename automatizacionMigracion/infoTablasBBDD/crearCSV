@@ -1,0 +1,1 @@
+select distinct TABLE_NAME,COLUMN_NAME,DATA_TYPE,DATA_LENGTH from all_tab_columns where OWNER='*nombre usuario BD*';

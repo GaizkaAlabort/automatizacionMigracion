@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -180,12 +182,15 @@ public class listaEstructuras extends JFrame implements ActionListener{
 		panel.add(panel_2, BorderLayout.SOUTH);
 		
 		btnNomenclatura = new JButton("Nomenclatura");
+		btnNomenclatura.setIcon(new ImageIcon(listaPantallas.class.getResource("/imagenes/flecha-izq.png")));
 		panel_2.add(btnNomenclatura);
 		
 		lblNewLabel = new JLabel("          ");
 		panel_2.add(lblNewLabel);
 		
 		btnGenerar = new JButton("Pantallas");
+		btnGenerar.setIcon(new ImageIcon(listaPantallas.class.getResource("/imagenes/flecha-dch.png")));
+		btnGenerar.setHorizontalTextPosition(SwingConstants.LEFT);
 		panel_2.add(btnGenerar);
 		
 		lblNewLabel_1 = new JLabel("      ");

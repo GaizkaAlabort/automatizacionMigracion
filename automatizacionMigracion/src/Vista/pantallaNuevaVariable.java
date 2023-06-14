@@ -391,8 +391,14 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			} else if(editVariable.getOpcion() == "pers") {
 				tipo.setSelectedItem("Personalizado");
 				
-				tabla.setText(editVariable.getTabla());
-				columna.setText(editVariable.getColumna());
+				if(infoTablas != null) {
+					tabla_combo.setSelectedItem(editVariable.getTabla());
+					columna_combo.setSelectedItem(editVariable.getColumna());
+				} else {
+					tabla.setText(editVariable.getTabla());
+					columna.setText(editVariable.getColumna());
+				}
+				
 				tipo_pers.setSelectedItem(editVariable.getTipoPers());
 				if(editVariable.getTipoPers() != "DATE") {
 					cantidad.setText(String.valueOf(editVariable.getCantidad()));
