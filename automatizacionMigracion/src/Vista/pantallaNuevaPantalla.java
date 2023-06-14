@@ -66,6 +66,8 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	private int numPant;
 	private String descripcion;
 	private infoCodPant info;
+	
+	private String noment;
 
 	/**
 	 * Launch the application.
@@ -92,6 +94,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	 */
 	public pantallaNuevaPantalla(String nomenclatura,pantalla editPantalla, ArrayList<estructura> listaNombreEst, ArrayList<codigoPantalla> listaCodPantalla) {
 		System.out.println("***Inicio inicializar nuevaPantalla***");
+		noment = nomenclatura;
 		if (editPantalla == null) {
 			nombre = new JTextField();
 			nombreCorto = new JTextField();
@@ -110,6 +113,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 				if(codPant.getNumPant() == editPantalla.getCodigoPantalla())
 				{
 					descPant = new JTextField(codPant.getDescPant());
+					descPant.setEditable(false);
 				}	
 			}
 			
@@ -126,7 +130,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	        {
 	        	estructura estructura = listaNombreEst.get(i);
 	        	
-	        	listaNombreEstructuras.add("PACK_" + nomenclatura + ".PAN_" + estructura.getNombre());
+	        	listaNombreEstructuras.add("PACK_TRF" + nomenclatura + ".PAN_" + estructura.getNombre());
 	        }
 		}
 		ArrayList<String> intermedio = new ArrayList<>(Arrays.asList(
@@ -465,6 +469,26 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		panel_2.add(btnFin);
 	}
 	
+	private String añadirModulo(String nombre) {
+		String modulo = noment;
+		if(noment.substring(0, 3).equals("trf") || noment.substring(0, 3).equals("TRF"))
+        {
+        	modulo =  noment.replaceFirst("(trf|TRF)", "");
+        	modulo =  modulo.replaceAll("[^a-zA-Z]", "");
+        }
+        else
+        {
+        	modulo =  modulo.replaceAll("[^a-zA-Z]", "");
+        }
+		
+		if(nombre.indexOf("_") == -1){
+		    nombre = modulo + 0 + "_" + nombre;
+		} else if((nombre.indexOf("_") != -1 && !nombre.substring(0, nombre.indexOf("_")).equals(modulo + 0))){
+		    nombre = modulo + 0 + "_" + nombre.substring(nombre.indexOf("_")+1, nombre.length());
+		}
+        return nombre;
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource()==btnFin) 
@@ -496,7 +520,8 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 			}
 			else
 			{
-				nomPant = nombre.getText();
+				nomPant = añadirModulo(nombre.getText());
+				System.out.println(nomPant);
 				nomCortoPant = nombreCorto.getText();
 				numPant = Integer.parseInt(numeroPant.getText());
 				descripcion = descPant.getText();
@@ -529,10 +554,8 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 				
 				if(problema.equals("")) {
 					for(int j=0; j < listaTeclas.length; j++) {
-						System.out.println("Tecla: " + j + ", estado: "+listaChk[j].isSelected());
 						listaTeclas[j] = listaChk[j].isSelected();
 					}
-					System.out.println("------");
 					System.out.println("Fin de la pantalla: " + nomPant + ", nombre corto: " + nomCortoPant);
 					System.out.println("            Codigo: " + numPant + ", descripcion: " + descripcion);
 					dispose();

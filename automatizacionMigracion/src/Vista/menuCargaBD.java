@@ -116,7 +116,6 @@ public class menuCargaBD extends JFrame {
 			while((linea = lector.readLine()) != null)
 			{
 				fila = linea.replaceAll("\"","").split(";");
-				System.out.println(fila[0] +" "+fila[1]+" "+fila[2]+" "+fila[3] +" ");
 				if (!nombresTablas.containsKey(fila[0])) {
 		            nombresTablas.put(fila[0], new tabla(fila[0], new columna(fila[1],fila[2],Integer.parseInt(fila[3]))));
 		        }

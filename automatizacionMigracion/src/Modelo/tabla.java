@@ -17,7 +17,7 @@ public class tabla {
 	
 	public void añadirColumna (String pNombre,String pTipo,int pCant) {
 		if (nombresColumnas.containsKey(pNombre)) {
-            System.out.println("El mapa contiene la columna: " + pNombre);
+			
         } else {
         	columna nuevaColumna = new columna(pNombre,pTipo,pCant);
 	

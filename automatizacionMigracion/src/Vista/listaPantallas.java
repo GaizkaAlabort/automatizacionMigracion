@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -15,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -24,6 +26,9 @@ import Modelo.pantalla;
 import Modelo.Accion.celdaAccion;
 import Modelo.Accion.editorAccion;
 import Modelo.Accion.eventosAccion;
+
+import java.io.File;
+import java.io.IOException;
 
 public class listaPantallas extends JFrame implements ActionListener{
 
@@ -99,6 +104,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 		panel.add(panel_generar, BorderLayout.NORTH);
 		
 		btnNuevaPantalla = new JButton("Nueva pantalla");
+		
 		panel_generar.add(btnNuevaPantalla);
 		btnNuevaPantalla.addActionListener(this);
 		
@@ -106,12 +112,16 @@ public class listaPantallas extends JFrame implements ActionListener{
 		panel.add(panel_opciones, BorderLayout.SOUTH);
 		
 		btnEstructura = new JButton("Estructuras");
+		btnEstructura.setIcon(new ImageIcon(listaPantallas.class.getResource("/imagenes/flecha-izq.png")));
 		panel_opciones.add(btnEstructura);
 		
 		lblNewLabel = new JLabel("          ");
 		panel_opciones.add(lblNewLabel);
 		
-		btnGenerar = new JButton("Finalizar");
+		btnGenerar = new JButton();
+		btnGenerar.setText("Finalizar");
+		btnGenerar.setIcon(new ImageIcon(listaPantallas.class.getResource("/imagenes/flecha-dch.png")));
+		btnGenerar.setHorizontalTextPosition(SwingConstants.LEFT);
 		panel_opciones.add(btnGenerar);
 		
 		lblNewLabel_1 = new JLabel("     ");
@@ -333,7 +343,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 					//Comprobamos patron para recoger el nombre de la estructura
 					if (matcher.find()) 
 					{
-						if(!listaNombreEstructura.contains(matcher.group(2)) && (matcher.group(1) != "TRF"))
+						if(!listaNombreEstructura.contains(matcher.group(2)) && (!matcher.group(1).equals("TRF")))
 						{
 							if(contCamposVacios==0)
 							{

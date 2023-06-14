@@ -12,6 +12,7 @@ import Modelo.pantalla;
 import Vista.listaEstructuras;
 import Vista.listaPantallas;
 import Vista.nomenclatura;
+import Vista.ubicacionDescarga;
 
 
 public class principal implements ActionListener{
@@ -19,6 +20,7 @@ public class principal implements ActionListener{
 	private nomenclatura nomenclatura;
 	private listaEstructuras listaEstructura;
 	private listaPantallas listaPantalla;
+	private ubicacionDescarga ubiDesc;
 	
 	private boolean vueltaNomEst=false;
 	private boolean vueltaEstPant=false;
@@ -80,10 +82,30 @@ public class principal implements ActionListener{
 		}
 		else if(listaPantalla!=null && e.getSource()==listaPantalla.btnGenerar && listaPantalla.comprobarGenerar())
 		{
-			System.out.println("//PRINCIPAL// Numero de pantallas: " + listaPantalla.getListaTam());
+			listaPantalla.setVisible(false);
 			
+			System.out.println("//PRINCIPAL// Numero de pantallas: " + listaPantalla.getListaTam());
+			ubiDesc = new ubicacionDescarga(){
+	            //Con esto cuando llamemos a dispose de la nueva pantalla abrimos la de la estructura
+	            @Override
+	            public void dispose(){
+	            	ubiDesc.setVisible(false);
+	    			listaPantalla.setVisible(true);
+	            }
+			};
+			ubiDesc.btnCancelar.addActionListener((ActionListener) this);
+			ubiDesc.btnDescargar.addActionListener((ActionListener) this);
+			
+			//Hacemos visible la nueva pantalla
+			ubiDesc.setVisible(true);
+		}
+		else if(ubiDesc!=null && e.getSource()==ubiDesc.btnDescargar && ubiDesc.comprobarDescarga())
+		{
+			ubiDesc.setVisible(false);
+			
+			String ubicacion = ubiDesc.getUbicacion();
 			//GENERAR FICHEROS
-			generador gen =new generador(new ficheros(nomenclatura.getNomenclatura(), nomenclatura.getCodPeticion(), listaEstructura.getListaEst(), listaPantalla.getListaPant(),listaPantalla.getListaCodigosPantalla()));
+			generador gen =new generador(new ficheros(nomenclatura.getNomenclatura(), nomenclatura.getCodPeticion(), listaEstructura.getListaEst(), listaPantalla.getListaPant(),listaPantalla.getListaCodigosPantalla()), ubicacion);
 		}
 		else if(listaEstructura!=null && e.getSource()==listaEstructura.btnNomenclatura)
 		{
@@ -106,6 +128,12 @@ public class principal implements ActionListener{
 			listaEstructura.btnGenerar.addActionListener((ActionListener) this);
 			listaEstructura.btnNomenclatura.addActionListener((ActionListener) this);
 			listaEstructura.setVisible(true);
+		}
+		else if(ubiDesc!=null && e.getSource()==ubiDesc.btnCancelar)
+		{
+			ubiDesc.setVisible(false);
+			
+			listaPantalla.setVisible(true);
 		}
 	}
 }

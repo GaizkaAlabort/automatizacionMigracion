@@ -224,7 +224,6 @@ public class infoEstructura extends JFrame {
 					//Comprobamos patron para recoger el nombre de la estructura
 					if (matcher.find()) {
 					    //Coincidió => obtener el valor del grupo 2, referencia a la estructura.
-					    System.out.println("Apartado: " + matcher.group(2));
 					    for (int i=0; i<listaNombreEst.size(); i++)
 				        {
 				        	System.out.println("I: "+ i + ", nombre-> "+listaNombreEst.get(i).getNombre());
