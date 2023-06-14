@@ -125,12 +125,14 @@ public class listaEstructuras extends JFrame implements ActionListener{
 				                //Cerramos la nueva pantalla
 				                super.dispose();
 				                
-				                //Recogemos 
-				                estructura nuevaEstructura = super.getEstructura();
-				                System.out.println("pantallaEstructura. Nombre:" + nuevaEstructura.getNombre() + ", Variables: " + nuevaEstructura.getCantVariables());
-				                modelo.setValueAt(nuevaEstructura.getNombre(), fila, 0);
-				                listaEstructuras.set(fila, nuevaEstructura);
-				                System.out.println(listaEstructuras.size());
+				                if(this.forzado == false) {
+				                	//Recogemos 
+					                estructura nuevaEstructura = super.getEstructura();
+					                System.out.println("pantallaEstructura. Nombre:" + nuevaEstructura.getNombre() + ", Variables: " + nuevaEstructura.getCantVariables());
+					                modelo.setValueAt(nuevaEstructura.getNombre(), fila, 0);
+					                listaEstructuras.set(fila, nuevaEstructura);
+					                System.out.println(listaEstructuras.size());
+				                }
 				            }
 				        };
 
@@ -218,12 +220,14 @@ public class listaEstructuras extends JFrame implements ActionListener{
 			                //Cerramos la nueva pantalla
 			                super.dispose();
 			                
-			                //Recogemos 
-			                estructura nuevaEstructura = super.getEstructura();
-			                System.out.println("pantallaEstructura. Nombre:" + nuevaEstructura.getNombre() + ", Variables: " + nuevaEstructura.getCantVariables());
-			                modelo.addRow(new Object[]{nuevaEstructura.getNombre()});
-			                listaEstructuras.add(nuevaEstructura);
-			                System.out.println(listaEstructuras.size());
+			                if(this.forzado == false) {
+				                //Recogemos 
+				                estructura nuevaEstructura = super.getEstructura();
+				                System.out.println("pantallaEstructura. Nombre:" + nuevaEstructura.getNombre() + ", Variables: " + nuevaEstructura.getCantVariables());
+				                modelo.addRow(new Object[]{nuevaEstructura.getNombre()});
+				                listaEstructuras.add(nuevaEstructura);
+				                System.out.println(listaEstructuras.size());
+			                }
 			            }
 			        };
 
