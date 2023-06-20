@@ -99,6 +99,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		setTitle("Nueva Variable");
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 271, 296);
+		setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 

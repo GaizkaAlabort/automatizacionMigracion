@@ -1,5 +1,7 @@
 package Modelo;
 
+import org.json.JSONObject;
+
 public class campos {
 	private String nombre;
 	private String tipo;
@@ -11,6 +13,13 @@ public class campos {
 		tipo = pTipo;
 		entrada = pIn;
 		salida = pOut;
+	}
+	
+	public campos(JSONObject obj) {
+		nombre = obj.getString("nombre");
+		tipo = obj.getString("tipo");
+		entrada = obj.getBoolean("in");
+		salida = obj.getBoolean("out");
 	}
 	
 	public String getNombre() {

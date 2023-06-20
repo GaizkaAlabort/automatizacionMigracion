@@ -73,6 +73,7 @@ public class infoEstructura extends JFrame {
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 		setTitle("Estructuras");
 		setBounds(100, 100, 450, 324);
+		setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 

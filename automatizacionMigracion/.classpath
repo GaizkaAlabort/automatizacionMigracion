@@ -7,5 +7,10 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="librerias/swingx-all-1.6.4.jar"/>
+	<classpathentry kind="lib" path="librerias/json-20230227.jar"/>
+	<classpathentry kind="lib" path="librerias/jgoodies-forms-1.9.0.jar"/>
+	<classpathentry kind="lib" path="librerias/jgoodies-common-1.8.1.jar"/>
+	<classpathentry kind="lib" path="librerias/miglayout-swing-11.1.jar"/>
+	<classpathentry kind="lib" path="librerias/miglayout-core-11.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

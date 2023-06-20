@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -88,8 +89,9 @@ public class listaPantallas extends JFrame implements ActionListener{
 		}
 		
 		setTitle("Lista Pantallas");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
+		setResizable(false);
 		general = new JPanel();
 		general.setBorder(new EmptyBorder(5, 5, 5, 5));
 
