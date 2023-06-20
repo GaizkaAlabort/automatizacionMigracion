@@ -2,6 +2,9 @@ package Modelo;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class variable {
 	
 	private String nombreVariable;
@@ -41,10 +44,47 @@ public class variable {
 	public variable(String pNombre, String pTipo, ArrayList<variable> pListaVariables,String pNombreEst) {
 		nombreVariable = pNombre;
 		tipo = pTipo;
+		cantidad = pListaVariables.size();
 		
 		nombre_varray = pNombreEst;
 		listaVariables=pListaVariables;
 		opcion = "varray";
+	}
+	
+	public variable(JSONObject obj) {
+		System.out.println(obj.getString("opcion"));
+		if(obj.getString("opcion").equals("basico")) {
+			nombreVariable = obj.getString("nombre");
+			tipo = obj.getString("tipo");
+			cantidad = obj.getInt("cantidad");
+			opcion = "basico";
+		} else if(obj.getString("opcion").equals("pers")) {
+			nombreVariable = obj.getString("nombre");
+			tipo = obj.getString("tipo");
+			cantidad = obj.getInt("cantidad");
+			
+			tabla = obj.getString("tabla");
+			columna = obj.getString("columna");
+			tipo_pers = obj.getString("tipoPers");
+			opcion = "pers";
+		} else if(obj.getString("opcion").equals("varray")) {
+			nombreVariable = obj.getString("nombre");
+			tipo = obj.getString("tipo");
+			
+			nombre_varray = obj.getString("nombreEstructura");
+			opcion = "varray";
+			
+			System.out.println(obj);
+			JSONArray varJSON = obj.getJSONArray("lista");
+			System.out.println(varJSON.length());
+	    	listaVariables = new ArrayList<variable>();
+	    	for(int var = 0; var < varJSON.length(); var++) {
+	    		System.out.println(varJSON.getJSONObject(var));
+	    		variable nuevavariable = new variable(varJSON.getJSONObject(var));
+	    		listaVariables.add(nuevavariable);
+	    	}
+			cantidad = listaVariables.size();
+		}
 	}
 
 	

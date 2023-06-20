@@ -26,6 +26,17 @@ public class generador {
 	private String ubicacionZip;
 	
 	public generador(ficheros pficheros, String ubicacion) {
+		System.out.println("ªªªCOMPROBAR CARPETAªªª");
+		File file = new File("archivosTemp");
+		
+		if(file.exists()) {
+			System.out.println("--No es necesario crear carpeta");
+		} else {
+			System.out.println("--Creando carpeta 'archivosTemp'");
+			file.mkdir();
+		}
+		
+		
 		System.out.println("******INICIO DEL GENERADOR DE FICHEROS******");
 		infoEstructura = pficheros;
 		ubicacionZip = ubicacion;

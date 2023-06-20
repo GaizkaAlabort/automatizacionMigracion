@@ -1,0 +1,16 @@
+pruebaest;prueba2;prueba3;prueba5;prueba
+pruebaest
+{"lista variables":[{"tipo":"NUMBER","opcion":"basico","cantidad":11,"nombre":"numero"},{"columna":"pal_codigo","tipo":"Personalizado","opcion":"pers","tabla":"paletas","cantidad":11,"nombre":"pers","tipoPers":"VARCHAR2"}],"nombreEst":"pruebaest"}
+
+prueba2
+{"lista variables":[{"tipo":"NUMBER","opcion":"basico","cantidad":-1,"nombre":"numero"}],"nombreEst":"prueba2"}
+
+prueba3
+{"lista variables":[{"tipo":"DATE","opcion":"basico","cantidad":-1,"nombre":"fecha"}],"nombreEst":"prueba3"}
+
+prueba5
+{"lista variables":[{"tipo":"VARCHAR2","opcion":"basico","cantidad":11,"nombre":"varchar"}],"nombreEst":"prueba5"}
+
+prueba
+{"lista variables":[{"tipo":"VARCHAR2","opcion":"basico","cantidad":11,"nombre":"texto"},{"lista":[{"tipo":"VARCHAR2","opcion":"basico","cantidad":11,"nombre":"texto"},{"tipo":"NUMBER","opcion":"basico","cantidad":1,"nombre":"numero"},{"tipo":"DATE","opcion":"basico","cantidad":-1,"nombre":"fecha"},{"columna":"pal_codigo","tipo":"Personalizado","opcion":"pers","tabla":"paletas","cantidad":3,"nombre":"perso","tipoPers":"NUMBER"}],"tipo":"VARRAY","opcion":"varray","nombreEstructura":"listaVar","cantidad":4,"nombre":"lista","cantVariables":4}],"nombreEst":"prueba"}
+

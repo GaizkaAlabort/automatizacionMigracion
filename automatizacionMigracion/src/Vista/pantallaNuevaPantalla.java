@@ -151,6 +151,7 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 570, 445);
+		setResizable(false);
 		general = new JPanel();
 		general.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -532,8 +533,14 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 					if(problema.equals("")) {
 						System.out.println("---"+ i +"---");
 						try {
+							if(tablaCampos.getValueAt(i,0).toString().equals("")) {
+								problema = "Se debe asignar nombre a la fila " + i;
+							}
 							System.out.println("Nombre:" + tablaCampos.getValueAt(i,0).toString());
 							try {
+								if(tablaCampos.getValueAt(i,1).toString().equals("")) {
+									problema = "Se debe asignar tipo a la fila " + i;
+								}
 								System.out.println("Tipo:" + tablaCampos.getValueAt(i,1).toString());
 							} catch(NullPointerException ie) {
 								problema = "Se debe asignar tipo a la fila " + i;

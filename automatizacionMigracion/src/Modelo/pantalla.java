@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class pantalla {
 	
 	private String nombrePantalla;
@@ -19,6 +22,27 @@ public class pantalla {
 		listaCampos = pListaCampos;
 		listaTeclas = pListaTeclas;
 		codigoPantalla = pNumero;
+	}
+	
+	public pantalla(JSONObject obj){
+		nombrePantalla = obj.getString("nombrePant");
+		nombreCortoPantalla = obj.getString("nombreCorto");
+		codigoPantalla = obj.getInt("codigoPantalla");
+		
+		JSONArray boolJSON = obj.getJSONArray("lista teclas");
+    	System.out.println(boolJSON);
+    	System.out.println(boolJSON.length());
+    	for(int bol = 0; bol < boolJSON.length(); bol++) {
+    		listaTeclas[bol] = (boolean) boolJSON.get(bol);
+    	}
+    	
+    	JSONArray camposJSON = obj.getJSONArray("lista campos");
+    	System.out.println(camposJSON);
+    	System.out.println(camposJSON.length());
+    	listaCampos = new ArrayList<campos>();
+    	for(int cam = 0; cam < camposJSON.length(); cam++) {
+    		listaCampos.add(new campos(camposJSON.getJSONObject(cam)));
+    	}
 	}
 	
 	public String getNombre() {

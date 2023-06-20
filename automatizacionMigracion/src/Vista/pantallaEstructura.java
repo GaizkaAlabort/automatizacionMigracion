@@ -23,11 +23,26 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Modelo.estructura;
+import Modelo.generarBackUp;
 import Modelo.tabla;
 import Modelo.variable;
 import Modelo.EditarVariable.editorEditVar;
 import Modelo.EditarVariable.eventoEditVar;
 import Modelo.EditarVariable.rendererEditVar;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import java.awt.GridLayout;
+import javax.swing.BoxLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import javax.swing.SpringLayout;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormSpecs;
+import com.jgoodies.forms.layout.RowSpec;
+import net.miginfocom.swing.MigLayout;
 
 public class pantallaEstructura extends JFrame implements ActionListener{
 
@@ -40,7 +55,6 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	private JButton btnEliminar;
 	
 	private ArrayList<variable> listaVariables;
-	private JPanel panel_1;
 	private String nomEst;
 	
 	private HashMap<String, tabla> infoTablas;
@@ -90,12 +104,10 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	        	int seleccion = JOptionPane.showOptionDialog( null,"¿Desea abandonar el programa?",
 	        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 	        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
-	        			new Object[] { "Cancelar", "Atras", "Salir"},"opcion 1");
+	        			new Object[] { "Cancelar", "Atras"},"opcion 1");
 	        			     
 	        	if (seleccion != -1){
-	        		if(seleccion+1==3) {
-	        			System.exit(0);
-	        		} else if(seleccion+1==2) {
+	        		if(seleccion+1==2) {
 	        			forzado = true;
 	        			dispose();
 	        		}
@@ -103,6 +115,7 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	        }
 		});
 		setBounds(100, 100, 450, 300);
+		setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -193,24 +206,20 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 		
 		JPanel panel = new JPanel();
 		contentPane.add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new BorderLayout(0, 0));
-		
-		btnTerminarCrearEstructura = new JButton("Terminar");
-		btnTerminarCrearEstructura.addActionListener(this);
-		panel.add(btnTerminarCrearEstructura, BorderLayout.EAST);
 		
 		btnAñadirVariable = new JButton("Añadir");
 		btnAñadirVariable.addActionListener(this);
-		panel.add(btnAñadirVariable, BorderLayout.WEST);
-		
-		panel_1 = new JPanel();
-		panel.add(panel_1, BorderLayout.CENTER);
-		panel_1.setLayout(null);
+		panel.setLayout(new MigLayout("", "[][100px][][100px][]", "[23px]"));
+		panel.add(btnAñadirVariable, "cell 0 0,growx,aligny center");
 		
 		btnEliminar = new JButton("Eliminar");
 		btnEliminar.addActionListener(this);
 		btnEliminar.setBounds(89, 0, 84, 23);
-		panel_1.add(btnEliminar);
+		panel.add(btnEliminar, "cell 2 0,alignx center,aligny center");
+		
+		btnTerminarCrearEstructura = new JButton("Terminar");
+		btnTerminarCrearEstructura.addActionListener(this);
+		panel.add(btnTerminarCrearEstructura, "cell 4 0,alignx center,aligny center");
 		
 		System.out.println("***Fin inicializar pantallaEstructura***");
 	}
@@ -269,6 +278,8 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 				} else {
 					nomEst = nombreEstructura.getText();
 					System.out.println("Fin de la estructura: " + nomEst);
+					
+					//new generarBackUp(new estructura(nomEst,listaVariables));
 					dispose();
 				}
 				

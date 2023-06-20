@@ -2,6 +2,9 @@ package Modelo;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class estructura {
 	
 	private String nombreEstructura;
@@ -14,6 +17,18 @@ public class estructura {
 		} else {
 			lista = pLista;
 		}
+	}
+	
+	public estructura(JSONObject obj) {
+		nombreEstructura = obj.getString("nombreEst");
+		
+		JSONArray varJSON = obj.getJSONArray("lista variables");
+    	
+    	lista = new ArrayList<variable>();
+    	for(int var = 0; var < varJSON.length(); var++) {
+    		variable nuevavariable = new variable(varJSON.getJSONObject(var));
+    		lista.add(nuevavariable);
+    	}
 	}
 	
 	public String getNombre() {
