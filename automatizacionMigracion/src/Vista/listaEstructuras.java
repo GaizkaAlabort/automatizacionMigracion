@@ -283,7 +283,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 				} else {
 				    
 				    Object nomGen = JOptionPane.showInputDialog(null,"Seleccione archivo a cargar:",
-							"Cargar estructura", JOptionPane.QUESTION_MESSAGE, null,
+							"Cargar base de datos", JOptionPane.QUESTION_MESSAGE, null,
 							listado,"Seleccionar");
 				    
 				    if(nomGen != null) {
@@ -354,7 +354,7 @@ public class listaEstructuras extends JFrame implements ActionListener{
 						String[] listaNombres = br.readLine().split(";");
 						
 						Object nomEstr = JOptionPane.showInputDialog(null,"Cargar estructura",
-												"Fechas", JOptionPane.QUESTION_MESSAGE, null,
+												"Cargar estructura", JOptionPane.QUESTION_MESSAGE, null,
 												listaNombres,"Seleccionar");
 						String seleccion = (String) nomEstr;
 						System.out.println(seleccion);

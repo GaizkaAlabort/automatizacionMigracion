@@ -11,6 +11,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -26,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
@@ -68,6 +71,8 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 	private infoCodPant info;
 	
 	private String noment;
+	
+	public boolean forzado = false;
 
 	/**
 	 * Launch the application.
@@ -149,7 +154,24 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 			listaCodigoPantallas = listaCodPantalla;
 		}
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+	        @Override
+	        public void windowClosing(WindowEvent e) {
+	        	// Ask for confirmation before terminating the program.
+	        	int seleccion = JOptionPane.showOptionDialog( null,"¿Desea abandonar la pantalla?",
+	        			"Cerrar Pantalla",JOptionPane.YES_NO_CANCEL_OPTION,
+	        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
+	        			new Object[] { "Cancelar", "Atras"},"opcion 1");
+	        			     
+	        	if (seleccion != -1){
+	        		if(seleccion+1==2) {
+	        			forzado = true;
+	        			dispose();
+	        		}
+	        	}
+	        }
+		});
 		setBounds(100, 100, 570, 445);
 		setResizable(false);
 		general = new JPanel();
