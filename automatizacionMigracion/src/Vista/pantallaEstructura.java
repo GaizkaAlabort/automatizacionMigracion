@@ -23,25 +23,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Modelo.estructura;
-import Modelo.generarBackUp;
 import Modelo.tabla;
 import Modelo.variable;
 import Modelo.EditarVariable.editorEditVar;
 import Modelo.EditarVariable.eventoEditVar;
 import Modelo.EditarVariable.rendererEditVar;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import java.awt.GridLayout;
-import javax.swing.BoxLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.SpringLayout;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormSpecs;
-import com.jgoodies.forms.layout.RowSpec;
 import net.miginfocom.swing.MigLayout;
 
 public class pantallaEstructura extends JFrame implements ActionListener{
@@ -101,8 +87,8 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	        @Override
 	        public void windowClosing(WindowEvent e) {
 	        	// Ask for confirmation before terminating the program.
-	        	int seleccion = JOptionPane.showOptionDialog( null,"¿Desea abandonar el programa?",
-	        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
+	        	int seleccion = JOptionPane.showOptionDialog( null,"¿Desea abandonar la pantalla?",
+	        			"Cerrar Pantalla",JOptionPane.YES_NO_CANCEL_OPTION,
 	        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 	        			new Object[] { "Cancelar", "Atras"},"opcion 1");
 	        			     

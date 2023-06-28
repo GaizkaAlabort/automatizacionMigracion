@@ -28,9 +28,6 @@ import Modelo.Accion.celdaAccion;
 import Modelo.Accion.editorAccion;
 import Modelo.Accion.eventosAccion;
 
-import java.io.File;
-import java.io.IOException;
-
 public class listaPantallas extends JFrame implements ActionListener{
 
 	private JPanel general;
@@ -183,38 +180,40 @@ public class listaPantallas extends JFrame implements ActionListener{
 				                //Cerramos la nueva pantalla
 				                super.dispose();
 				                
-				                //Recogemos 
-				                pantalla nuevaPantalla = super.getPantalla();
-				                System.out.println("pantalla. Nombre: " + nuevaPantalla.getNombre() + ", Numero: " + nuevaPantalla.getCodigoPantalla());
-				                modelo.setValueAt(nuevaPantalla.getNombre(), fila, 0);
-				                modelo.setValueAt(nuevaPantalla.getCodigoPantalla(), fila, 1);
-				                int numero = listaPantallas.get(fila).getCodigoPantalla();
-				                listaPantallas.set(fila, nuevaPantalla);
-				                System.out.println("Tamaño de la lista de pantallas: " + listaPantallas.size());
-				                listaCodigosPantalla = super.getListaCodPant();
-				                if(numero != nuevaPantalla.getCodigoPantalla()) {
-				                	int indice = -1;
-				                	//Comprobar que existe otra pantalla con ese codigo
-					                for(int k=0; k< listaPantallas.size();k++) {
-					                	if(numero==listaPantallas.get(k).getCodigoPantalla()) {
-					                		indice=k;
-					                	}
-					                }
-					                
-					                //Si no existe, borrar de la lista
-					                if (indice != -1) {
-					        			System.out.println("La pantalla "+ numero + " está en el índice " + indice);
-					        		} else {
-					        			for(int num=0;num<listaCodigosPantalla.size();num++)
-						                {
-						                	if(numero==listaCodigosPantalla.get(num).getNumPant()) {
-						                		indice =num;
+				                if(this.forzado == false) {
+					                //Recogemos 
+					                pantalla nuevaPantalla = super.getPantalla();
+					                System.out.println("pantalla. Nombre: " + nuevaPantalla.getNombre() + ", Numero: " + nuevaPantalla.getCodigoPantalla());
+					                modelo.setValueAt(nuevaPantalla.getNombre(), fila, 0);
+					                modelo.setValueAt(nuevaPantalla.getCodigoPantalla(), fila, 1);
+					                int numero = listaPantallas.get(fila).getCodigoPantalla();
+					                listaPantallas.set(fila, nuevaPantalla);
+					                System.out.println("Tamaño de la lista de pantallas: " + listaPantallas.size());
+					                listaCodigosPantalla = super.getListaCodPant();
+					                if(numero != nuevaPantalla.getCodigoPantalla()) {
+					                	int indice = -1;
+					                	//Comprobar que existe otra pantalla con ese codigo
+						                for(int k=0; k< listaPantallas.size();k++) {
+						                	if(numero==listaPantallas.get(k).getCodigoPantalla()) {
+						                		indice=k;
 						                	}
 						                }
-					        			
-					        			listaCodigosPantalla.remove(indice);
-					        			listaCodigosPantalla.add(super.getCodPant());
-					        			System.out.println("Borrado "+ numero + " de " + indice);
+						                
+						                //Si no existe, borrar de la lista
+						                if (indice != -1) {
+						        			System.out.println("La pantalla "+ numero + " está en el índice " + indice);
+						        		} else {
+						        			for(int num=0;num<listaCodigosPantalla.size();num++)
+							                {
+							                	if(numero==listaCodigosPantalla.get(num).getNumPant()) {
+							                		indice =num;
+							                	}
+							                }
+						        			
+						        			listaCodigosPantalla.remove(indice);
+						        			listaCodigosPantalla.add(super.getCodPant());
+						        			System.out.println("Borrado "+ numero + " de " + indice);
+						                }
 					                }
 				                }
 				            }
@@ -265,27 +264,29 @@ public class listaPantallas extends JFrame implements ActionListener{
 			                //Cerramos la nueva pantalla
 			                super.dispose();
 			                
-			                //Recogemos 
-			                pantalla nuevaPantalla = super.getPantalla();
-			                System.out.println("pantalla. Nombre:" + nuevaPantalla.getNombre()+ ", Numero: " + nuevaPantalla.getCodigoPantalla());
-			                modelo.addRow(new Object[]{nuevaPantalla.getNombre(),nuevaPantalla.getCodigoPantalla()});
-			                listaPantallas.add(nuevaPantalla);
-			                System.out.println(listaPantallas.size());
-			                
-			                listaCodigosPantalla = super.getListaCodPant();
-			                int indice = -1;	
-			                for(int num=0;num<listaCodigosPantalla.size();num++)
-			                {
-			                	if(nuevaPantalla.getCodigoPantalla()==listaCodigosPantalla.get(num).getNumPant()) {
-			                		indice=num;
-			                	}
-			                }
-			                
-			        		if (indice != -1) {
-			        			System.out.println("La pantalla "+ nuevaPantalla.getCodigoPantalla() + " está en el índice " + indice);
-			        		} else {
-			        			listaCodigosPantalla.add(super.getCodPant());
-			                }
+			                if(this.forzado == false) {
+			                	//Recogemos 
+				                pantalla nuevaPantalla = super.getPantalla();
+				                System.out.println("pantalla. Nombre:" + nuevaPantalla.getNombre()+ ", Numero: " + nuevaPantalla.getCodigoPantalla());
+				                modelo.addRow(new Object[]{nuevaPantalla.getNombre(),nuevaPantalla.getCodigoPantalla()});
+				                listaPantallas.add(nuevaPantalla);
+				                System.out.println(listaPantallas.size());
+				                
+				                listaCodigosPantalla = super.getListaCodPant();
+				                int indice = -1;	
+				                for(int num=0;num<listaCodigosPantalla.size();num++)
+				                {
+				                	if(nuevaPantalla.getCodigoPantalla()==listaCodigosPantalla.get(num).getNumPant()) {
+				                		indice=num;
+				                	}
+				                }
+				                
+				        		if (indice != -1) {
+				        			System.out.println("La pantalla "+ nuevaPantalla.getCodigoPantalla() + " está en el índice " + indice);
+				        		} else {
+				        			listaCodigosPantalla.add(super.getCodPant());
+				                }
+			        		}
 			            }
 			        };
 
@@ -320,7 +321,7 @@ public class listaPantallas extends JFrame implements ActionListener{
 	
 	public boolean comprobarGenerar() {
 		if(listaPantallas.size()==0) {
-			JOptionPane.showMessageDialog(null, "Introduzca una estructura como minimo","Incorrecto", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Introduzca una pantalla como minimo","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			System.out.println("ERROR: ListaEstructura vacia");
 			return false;
 		} else{

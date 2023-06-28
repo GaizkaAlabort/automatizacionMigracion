@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 
 import Modelo.ficheros;
@@ -34,14 +37,36 @@ public class principal implements ActionListener{
 
 	private void iniciar() {
 		/**Se instancian las clases que van a ser unicas en el sistema*/
-		cargarGeneral = new Vista.cargarGeneral();
-		cargarGeneral.btnCargar.addActionListener(this);
-		cargarGeneral.btnNueva.addActionListener(this);
-		cargarGeneral.setVisible(true);
+		File carpeta = new File("backups");
+		boolean posCargar = false;
+		
+		if(carpeta.exists() ) {
+			File[] files = carpeta.listFiles();
+			//Recorrer carpetas
+			for (File file : files) {
+				if(file.isDirectory()) {
+					posCargar=true;
+					break;
+				}
+			}		
+		}
+		
+		
+		if(posCargar) {
+			cargarGeneral = new Vista.cargarGeneral();
+			cargarGeneral.btnCargar.addActionListener(this);
+			cargarGeneral.btnNueva.addActionListener(this);
+			cargarGeneral.setVisible(true);
+		} else {
+			recogido = new ficheros();
+			nomenclatura = new nomenclatura(null,-1);
+		    nomenclatura.btnNewButton.addActionListener((ActionListener) this);
+			nomenclatura.setVisible(true);
+		}
 	}
 	
 	public void actionPerformed(ActionEvent e){
-		if(e.getSource() == cargarGeneral.btnCargar) 
+		if(cargarGeneral !=null && e.getSource() == cargarGeneral.btnCargar) 
 		{
 			String seleccion = cargarGeneral.comprobarVariasCopias();
 			System.out.println(seleccion);
@@ -69,7 +94,7 @@ public class principal implements ActionListener{
 				vueltaEstPant = true;
 			};
 		}
-		else if(e.getSource() == cargarGeneral.btnNueva) 
+		else if(cargarGeneral !=null && e.getSource() == cargarGeneral.btnNueva) 
 		{
 			recogido = new ficheros();
 			cargarGeneral.dispose();
