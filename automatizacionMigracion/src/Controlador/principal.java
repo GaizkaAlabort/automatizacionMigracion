@@ -85,7 +85,8 @@ public class principal implements ActionListener{
 			        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 			        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 			        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-			        			     
+			        	
+			        	recogido.setListaEst(listaEstructura.getListaEst());	
 			        	salida(seleccion);
 			        }
 				});
@@ -119,7 +120,8 @@ public class principal implements ActionListener{
 			        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 			        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 			        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-			        			     
+			        	
+			        	recogido.setListaEst(listaEstructura.getListaEst());			        	
 			        	salida(seleccion);
 			        }
 				});
@@ -138,7 +140,8 @@ public class principal implements ActionListener{
 			        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 			        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 			        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-			        			     
+			        	
+			        	recogido.setListaEst(listaEstructura.getListaEst());
 			        	salida(seleccion);
 			        }
 				});
@@ -165,7 +168,9 @@ public class principal implements ActionListener{
 			        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 			        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 			        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-			        			     
+			        			  
+			        	recogido.setListaPant(listaPantalla.getListaPant());
+						recogido.setListaCodPant(listaPantalla.getListaCodigosPantalla());
 			        	salida(seleccion);
 			        }
 				});
@@ -184,7 +189,9 @@ public class principal implements ActionListener{
 			        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 			        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 			        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-			        			     
+			        	
+			        	recogido.setListaPant(listaPantalla.getListaPant());
+						recogido.setListaCodPant(listaPantalla.getListaCodigosPantalla());
 			        	salida(seleccion);
 			        }
 				});
@@ -255,7 +262,8 @@ public class principal implements ActionListener{
 		        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 		        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 		        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-		        			     
+		        	
+		        	recogido.setNomYCod(nomenclatura.getNomenclatura(),nomenclatura.getCodPeticion());
 		        	salida(seleccion);
 		        }
 			});
@@ -280,7 +288,8 @@ public class principal implements ActionListener{
 		        			"Cerrar Programa",JOptionPane.YES_NO_CANCEL_OPTION,
 		        			JOptionPane.INFORMATION_MESSAGE,null,// null para icono por defecto.
 		        			new Object[] { "Cancelar", "Salir"},"opcion 1");
-		        			     
+		        	
+		        	recogido.setListaEst(listaEstructura.getListaEst());
 		        	salida(seleccion);
 		        }
 			});

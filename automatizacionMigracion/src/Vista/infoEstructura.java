@@ -204,13 +204,13 @@ public class infoEstructura extends JFrame {
 				lblCom4.setVisible(false);
 				panel_lista.setVisible(false);
 				modelo.setRowCount(0);
-				if(tipoCampos.getSelectedItem()== "PACK_TRF.RF_PANINFO") {
+				if(tipoCampos.getSelectedItem().equals("PACK_TRF.RF_PANINFO")) {
 					lblPaninfo.setVisible(true);
-				} else if(tipoCampos.getSelectedItem()== "PACK_TRF.RF_LOGIN") {
+				} else if(tipoCampos.getSelectedItem().equals("PACK_TRF.RF_LOGIN")) {
 					lblLogin.setVisible(true);
-				} else if(tipoCampos.getSelectedItem()== "PACK_TRF.RF_ERROR") {
+				} else if(tipoCampos.getSelectedItem().equals("PACK_TRF.RF_ERROR")) {
 					lblError.setVisible(true);
-				} else if(tipoCampos.getSelectedItem()== "PACK_TRF.PAN_COM4") {
+				} else if(tipoCampos.getSelectedItem().equals("PACK_TRF.PAN_COM4")) {
 					lblCom4.setVisible(true);
 				} else {
 					/**Basada en pregunta de stackoverflow 
@@ -252,7 +252,7 @@ public class infoEstructura extends JFrame {
 		});
 		panel.add(tipoCampos);
 		
-		if(seleccion == "PACK_TRF.RF_PANINFO" || seleccion == "PACK_TRF.RF_LOGIN" || seleccion == "PACK_TRF.RF_ERROR" || seleccion == "PACK_TRF.PAN_COM4")
+		if(seleccion.equals("PACK_TRF.RF_PANINFO") || seleccion.equals("PACK_TRF.RF_LOGIN") || seleccion.equals("PACK_TRF.RF_ERROR") || seleccion.equals("PACK_TRF.PAN_COM4"))
 		{
 			tipoCampos.setSelectedItem(seleccion);
 		}

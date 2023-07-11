@@ -505,10 +505,15 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
         }
 		
 		if(nombre.indexOf("_") == -1){
-		    nombre = modulo + 0 + "_" + nombre;
-		} else if((nombre.indexOf("_") != -1 && !nombre.substring(0, nombre.indexOf("_")).equals(modulo + 0))){
-		    nombre = modulo + 0 + "_" + nombre.substring(nombre.indexOf("_")+1, nombre.length());
+		    nombre = modulo + numPant + "_" + nombre;
+		} else if((nombre.indexOf("_") != -1 && !nombre.substring(0, nombre.indexOf("_")).equals(modulo + numPant))){
+		    if(nombre.substring(0, nombre.indexOf("_")-1).equals(modulo)||nombre.substring(0, nombre.indexOf("_")-2).equals(modulo)||nombre.substring(0, nombre.indexOf("_")-3).equals(modulo)) {
+		    	nombre = modulo + numPant + "_" + nombre.substring(nombre.indexOf("_")+1,nombre.length());
+		    } else {
+		    	nombre = modulo + numPant + "_" + nombre;
+		    }
 		}
+		System.out.println(nombre);
         return nombre;
 	}
 	
@@ -543,10 +548,10 @@ public class pantallaNuevaPantalla extends JFrame implements ActionListener{
 			}
 			else
 			{
+				numPant = Integer.parseInt(numeroPant.getText());
 				nomPant = añadirModulo(nombre.getText());
 				System.out.println(nomPant);
 				nomCortoPant = nombreCorto.getText();
-				numPant = Integer.parseInt(numeroPant.getText());
 				descripcion = descPant.getText();
 				String problema="";
 				

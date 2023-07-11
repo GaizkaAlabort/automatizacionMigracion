@@ -56,7 +56,7 @@ public class generarBackUp {
 		
 		try {
 			Date fechaCreacion = new Date( );
-		    SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
+		    SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		    String fecha = ft.format(fechaCreacion);
 		    
 		    comprobarCarpeta("backups/" + pficheros.getNombre());
