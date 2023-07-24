@@ -162,21 +162,34 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 		                //Hacemos visible la pantalla de la estructura
 		                getFrame().setVisible(true);
 		                
-		                //Cerramos la nueva pantalla
-		                super.dispose();
-		                
 		                //Recogemos 
 		                variable nuevaVariable = super.getVariable();
 		                if(nuevaVariable != null) {
-			                System.out.println("pantallaEstructura. Nombre:" + nuevaVariable.getNombre() + ", Cantidad:" + nuevaVariable.getCantidad() +", Tipo:" + nuevaVariable.getTipo() );
-			                modelo.setValueAt(nuevaVariable.getNombre(), fila, 0);
-			                modelo.setValueAt(nuevaVariable.getTipo(), fila, 1);
-			                modelo.setValueAt(nuevaVariable.getCantidad(), fila, 2);
-			                listaVariables.set(fila, nuevaVariable);
-			                System.out.println(listaVariables.size());
+		                	System.out.println("pantallaEstructura. Nombre:" + nuevaVariable.getNombre() + ", Cantidad:" + nuevaVariable.getCantidad() +", Tipo:" + nuevaVariable.getTipo());
+				            boolean existe = buscarNombreVariable(nuevaVariable.getNombre(),fila);
+			                
+		                	if(existe == true) {
+		        				JOptionPane.showMessageDialog(this, "El nombre de variable ya esta usado.","Nombre repetido", JOptionPane.ERROR_MESSAGE);
+		                		
+		                	} else {
+		                		//Cerramos la nueva pantalla
+				                super.dispose();
+			                
+				                modelo.setValueAt(nuevaVariable.getNombre(), fila, 0);
+				                modelo.setValueAt(nuevaVariable.getTipo(), fila, 1);
+				                modelo.setValueAt(nuevaVariable.getCantidad(), fila, 2);
+				                listaVariables.set(fila, nuevaVariable);
+				                System.out.println(listaVariables.size());
+				                btn.setEnabled(true);
+		                	}
+		                	
+		                	
+		                } else {
+		                	//Cerramos la nueva pantalla
+	                		super.dispose();
+	                		btn.setEnabled(true);
 		                }
 		                
-		                btn.setEnabled(true);
 		            }
 		        };
 
@@ -227,19 +240,30 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 			                //Hacemos visible la pantalla de la estructura
 			                getFrame().setVisible(true);
 			                
-			                //Cerramos la nueva pantalla
-			                super.dispose();
-			                
 			                //Recogemos 
 			                variable nuevaVariable = super.getVariable();
 			                if(nuevaVariable != null) {
 				                System.out.println("pantallaEstructura. Nombre:" + nuevaVariable.getNombre() + ", Cantidad:" + nuevaVariable.getCantidad() +", Tipo:" + nuevaVariable.getTipo() );
-				                modelo.addRow(new Object[]{nuevaVariable.getNombre(),nuevaVariable.getTipo(),nuevaVariable.getCantidad(),null});
-				                listaVariables.add(nuevaVariable);
-				                System.out.println(listaVariables.size());
+				                boolean existe = buscarNombreVariable(nuevaVariable.getNombre(),-1);
+				                
+			                	if(existe == true) {
+			        				JOptionPane.showMessageDialog(this, "El nombre de variable ya esta usado.","Nombre repetido", JOptionPane.ERROR_MESSAGE);
+			                		
+			                	} else {
+			                		//Cerramos la nueva pantalla
+			                		super.dispose();
+			                		
+					                modelo.addRow(new Object[]{nuevaVariable.getNombre(),nuevaVariable.getTipo(),nuevaVariable.getCantidad(),null});
+					                listaVariables.add(nuevaVariable);
+					                System.out.println(listaVariables.size());
+					                
+					                btnAñadirVariable.setEnabled(true);
+			                	}
+			                } else {
+			                	//Cerramos la nueva pantalla
+		                		super.dispose();
+		                		btnAñadirVariable.setEnabled(true);
 			                }
-			                
-			                btnAñadirVariable.setEnabled(true);
 			            }
 			        };
 
@@ -302,6 +326,16 @@ public class pantallaEstructura extends JFrame implements ActionListener{
 	
 	public estructura getEstructura(){
 	    return new estructura(nomEst,listaVariables);
+	}
+	
+	private boolean buscarNombreVariable(String nombre, int editar) {
+		for (int r = 0; r < tablaVariablesEstructura.getRowCount(); r++) {
+		    String valor = (String) modelo.getValueAt(r, 0);
+		    if(nombre.equals(valor) && editar != r) {
+		    	return true;
+		    }
+		}
+		return false;
 	}
 
 }

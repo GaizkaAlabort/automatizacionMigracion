@@ -7,6 +7,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -142,6 +143,7 @@ public class ubicacionDescarga extends JFrame {
 			    ubiIntroducido = textUbi.getText();
 				return true;
 			}
+			JOptionPane.showMessageDialog(this, "Debe escribir la direccion correctamente.","Ubicación erronea", JOptionPane.ERROR_MESSAGE);
 			System.out.println("No Existe Ubi introducida");
 		} else {
 			if(selectednode != null) {

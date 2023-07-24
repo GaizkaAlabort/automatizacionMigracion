@@ -314,6 +314,10 @@ public class listaEstructuras extends JFrame implements ActionListener{
 							
 							lector.close();
 							System.out.println("BD cargada de " + infoTablas.size() + " tablas.");
+							if(infoTablas.size()>0) {
+							JOptionPane.showMessageDialog(null, "Base de datos cargada, informacion de " + infoTablas.size() + " tablas ha sido agregado.",
+									  "Carga exitosa", JOptionPane.INFORMATION_MESSAGE);
+							}
 							
 						} catch (Exception ne) {
 							ne.printStackTrace();

@@ -225,6 +225,9 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 					if (tabla != null) {
 						columna columna = tabla.recogerColumna(columna_combo.getSelectedItem().toString());
 						if(columna != null) {
+							if(nombre.getText()!=null) {
+								nombre.setText(columna.getNombreBasico().toUpperCase());
+							}
 							tipo_pers.setSelectedItem(columna.getTipo());
 							cantidad.setText(String.valueOf(columna.getCant()));
 						}
@@ -245,7 +248,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		tipo_pers.setBounds(42, 72, 95, 20);
 		tipo_pers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent f) {
-				if(tipo_pers.getSelectedItem()== "DATE") {
+				if(tipo_pers.getSelectedItem().equals("DATE")) {
 					cantidad.setVisible(false);
 					cantidad.setText(null);
 				} else {
@@ -317,14 +320,14 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 		
 		tipo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(tipo.getSelectedItem()== "DATE") {
+				if(tipo.getSelectedItem().equals("DATE")) {
 					cantidad.setVisible(false);
 					cantidad.setText(null);
 				} else {
 					cantidad.setVisible(true);
 				}
 				
-				if(tipo.getSelectedItem()== "Personalizado") {
+				if(tipo.getSelectedItem().equals("Personalizado")) {
 					lblTablaPers.setVisible(true);
 					lblColumnaPers.setVisible(true);
 					lblTipoPers.setVisible(true);
@@ -360,7 +363,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 					columna_combo.setVisible(false);
 				}
 				
-				if(tipo.getSelectedItem()== "VARRAY") {
+				if(tipo.getSelectedItem().equals("VARRAY")) {
 					lblcant.setVisible(false);
 					lblNombreEstructura.setVisible(true);
 					nombreVarray.setVisible(true);
@@ -383,13 +386,13 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 			setTitle("Editar Variable: " + editVariable.getNombre());
 			
 			nombre.setText(editVariable.getNombre());
-			if(editVariable.getOpcion() == "basico") {
+			if(editVariable.getOpcion().equals("basico")) {
 				tipo.setSelectedItem(editVariable.getTipo());	
 				
-				if(editVariable.getTipo() != "DATE") {
+				if(!editVariable.getTipo().equals("DATE") && editVariable.getCantidad() > 0) {
 					cantidad.setText(String.valueOf(editVariable.getCantidad()));
 				}
-			} else if(editVariable.getOpcion() == "pers") {
+			} else if(editVariable.getOpcion().equals("pers")) {
 				tipo.setSelectedItem("Personalizado");
 				
 				if(infoTablas != null) {
@@ -401,10 +404,10 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 				}
 				
 				tipo_pers.setSelectedItem(editVariable.getTipoPers());
-				if(editVariable.getTipoPers() != "DATE") {
+				if(!editVariable.getTipoPers().equals("DATE")) {
 					cantidad.setText(String.valueOf(editVariable.getCantidad()));
 				}
-			} else if(editVariable.getOpcion() == "varray") {
+			} else if(editVariable.getOpcion().equals("varray")) {
 				tipo.setSelectedItem("VARRAY");
 				
 				nombreVarray.setText(editVariable.getNombreEstructura());
@@ -426,45 +429,55 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getSource()==btnFinNuevaVariable) {
-			if (nombre.getText().isEmpty() || tipo.getSelectedItem()=="Seleccionar")
+			if (nombre.getText().isEmpty() || tipo.getSelectedItem().equals("Seleccionar"))
 			{
 				System.out.println("Introduzca nombre y seleccione tipo." + tipo.getSelectedItem());
 				JOptionPane.showMessageDialog(this, "Introduzca nombre y seleccione tipo.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			} 
-			else if(tipo.getSelectedItem()== "VARCHAR2" && cantidad.getText().isEmpty()) 
+			else if(tipo.getSelectedItem().equals("VARCHAR2") && cantidad.getText().isEmpty()) 
 			{
 				System.out.println("Los datos varchar necesitan cantidad.");
 				JOptionPane.showMessageDialog(this, "Los datos varchar necesitan cantidad.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "DATE" && !cantidad.getText().isEmpty()) 
+			else if(tipo.getSelectedItem().equals("VARCHAR2") && Integer.parseInt(cantidad.getText())<= 0) 
+			{
+				System.out.println("Los datos varchar necesitan cantidad positiva.");
+				JOptionPane.showMessageDialog(this, "Los datos varchar necesitan cantidad positiva.","Incorrecto", JOptionPane.ERROR_MESSAGE);
+			}
+			else if(tipo.getSelectedItem().equals("DATE") && !cantidad.getText().isEmpty()) 
 			{
 				System.out.println("Las fechas no tienen cantidad.");
 				JOptionPane.showMessageDialog(this, "Las fechas no tienen cantidad.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "VARRAY" && listaVariables.size()<1) 
+			else if(tipo.getSelectedItem().equals("VARRAY") && listaVariables.size()<1) 
 			{
 				System.out.println("Al ser varray, necesita variables en la lista.");
 				JOptionPane.showMessageDialog(this, "Al ser varray, necesita variables en la lista.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "Personalizado" && infoTablas == null && (tabla.getText().isEmpty() || columna.getText().isEmpty() || tipo_pers.getSelectedItem() =="Seleccionar"))
+			else if(tipo.getSelectedItem().equals("Personalizado") && infoTablas == null && (tabla.getText().isEmpty() || columna.getText().isEmpty() || tipo_pers.getSelectedItem().equals("Seleccionar")))
 			{
 				System.out.println("Al ser personalizado, necesita tabla, columna y tipo.");
 				JOptionPane.showMessageDialog(this, "Al ser personalizado, necesita tabla, columna y tipo.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "Personalizado" && infoTablas != null && (tabla_combo.getSelectedItem().toString() == null|| columna_combo.getSelectedItem().toString() == null || tipo_pers.getSelectedItem() == "Seleccionar"))
+			else if(tipo.getSelectedItem().equals("Personalizado") && infoTablas != null && (tabla_combo.getSelectedItem().toString() == null|| columna_combo.getSelectedItem().toString() == null || tipo_pers.getSelectedItem().equals("Seleccionar")))
 			{
 				System.out.println("Al ser personalizado, necesita tabla, columna y tipo.");
 				JOptionPane.showMessageDialog(this, "Al ser personalizado, necesita tabla, columna y tipo.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "Personalizado" && tipo_pers.getSelectedItem() =="VARCHAR2" && cantidad.getText().isEmpty())
+			else if(tipo.getSelectedItem().equals("Personalizado") && tipo_pers.getSelectedItem().equals("VARCHAR2") && cantidad.getText().isEmpty())
 			{
 				System.out.println("Los datos varchar necesitan cantidad.");
 				JOptionPane.showMessageDialog(this, "Los datos varchar necesitan cantidad.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(tipo.getSelectedItem()== "VARRAY" && nombreVarray.getText().isEmpty()) 
+			else if(tipo.getSelectedItem().equals("VARRAY") && nombreVarray.getText().isEmpty()) 
 			{
 				System.out.println("La estructura varray debe tener un nombre, para poder reutilizar estructura.");
 				JOptionPane.showMessageDialog(this, "La estructura varray debe tener un nombre, para poder reutilizar estructura.","Incorrecto", JOptionPane.ERROR_MESSAGE);
+			}
+			else if(!cantidad.getText().isEmpty() && Integer.parseInt(cantidad.getText())<= 0)
+			{
+				System.out.println("Las cantidades deben ser positivas.");
+				JOptionPane.showMessageDialog(this, "Los datos necesitan cantidad positiva.","Incorrecto", JOptionPane.ERROR_MESSAGE);
 			}
 			else
 			{
@@ -472,7 +485,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 				nombreVar = nombre.getText();
 				tipoVar = String.valueOf(tipo.getSelectedItem());
 				
-				if(tipoVar == "Personalizado") {
+				if(tipoVar.equals("Personalizado")) {
 					if(infoTablas != null) {
 						tablaVar = tabla_combo.getSelectedItem().toString();
 						columnaVar = columna_combo.getSelectedItem().toString();
@@ -485,7 +498,7 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 				}
 				
 				try{
-					if(tipoVar == "VARRAY") {
+					if(tipoVar.equals("VARRAY")) {
 						nombreEst = nombreVarray.getText();
 						cantidadVar = listaVariables.size();
 						System.out.println("La lista tiene " + cantidadVar + " variables." );
@@ -569,11 +582,11 @@ public class pantallaNuevaVariable extends JFrame implements ActionListener{
 	
 	public variable getVariable() {
 		if(nombreVar!= null) {
-			if(tipoVar == "Personalizado") {
+			if(tipoVar.equals("Personalizado")) {
 				System.out.println("PERS");
 				return new variable(nombreVar,tipoVar,cantidadVar,
 									tablaVar,columnaVar,tipoPersVar);
-			} else if(tipoVar == "VARRAY") {
+			} else if(tipoVar.equals("VARRAY")) {
 				System.out.println("ARRAY");
 				return new variable(nombreVar,tipoVar,listaVariables,nombreEst);
 			} else {
