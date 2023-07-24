@@ -808,7 +808,7 @@ public class generador {
 	    				String tipo = campo.getTipo();
 	    				int punto = tipo.indexOf(".",4);
 	    				String estructura = tipo.substring(punto+1,tipo.length());
-	    				String paquete = tipo.substring(0,punto-1);
+	    				String paquete = "PACK_" + nomenclatura;
 	    				apartado = paquete +".G_CAM"+estructura.replace("PAN_","");
 	    				break;
 	    		}
@@ -876,7 +876,7 @@ public class generador {
         				String tipo = campo.getTipo();
         				int punto = tipo.indexOf(".",4);
         				String estructura = tipo.substring(punto+1,tipo.length());
-        				String paquete = tipo.substring(0,punto-1);
+        				String paquete = "PACK_" + nomenclatura;
         				apartado = apartado +"  "+ paquete +".SEL_CAM"+estructura.replace("PAN_","")+"(json);\r\n";
         				break;
         		}
@@ -925,7 +925,7 @@ public class generador {
         				String tipo = campo.getTipo();
         				int punto = tipo.indexOf(".",4);
         				String estructura = tipo.substring(punto+1,tipo.length());
-        				String paquete = tipo.substring(0,punto-1);
+        				String paquete = "PACK_" + nomenclatura;
         				apartado = apartado +"  "+ paquete +".UPD_CAM"+estructura.replace("PAN_","")+"(json);\r\n";
         				break;
         		}
